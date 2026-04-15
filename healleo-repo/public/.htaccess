@@ -1,0 +1,39 @@
+# Healleo — Apache config for Hostinger static hosting.
+# Placed in public/ so Vite copies it to dist/ on every build.
+
+# ─── MIME types (some shared hosts don't know .mjs / .woff2) ───
+AddType application/javascript .js .mjs
+AddType font/woff2 .woff2
+AddType image/svg+xml .svg
+
+# ─── Cache policy ───
+<IfModule mod_headers.c>
+  # Hashed build assets are content-addressed — safe to cache forever.
+  <FilesMatch "-[A-Za-z0-9_-]{8,}\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # index.html must revalidate so users pick up new asset hashes.
+  <FilesMatch "^index\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+
+  # Security headers
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ─── Compression ───
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# ─── SPA fallback ───
+# Healleo uses state-based tabs, not URL routing, so this mostly covers users
+# who bookmark a path. Real files (index.html, /assets/*) are served as-is.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

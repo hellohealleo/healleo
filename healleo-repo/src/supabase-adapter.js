@@ -17,9 +17,10 @@
 //
 // ═══════════════════════════════════════════════════════
 
-// ─── CONFIGURATION (set these to your Supabase project) ───
-const SUPABASE_URL = ""; // e.g. "https://xyzcompany.supabase.co"
-const SUPABASE_ANON_KEY = ""; // Your anon/public key
+// ─── CONFIGURATION (injected by Vite from .env.local / .env) ───
+import { createClient as _createSupabaseClient } from "@supabase/supabase-js";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
 // If Supabase is not configured, skip all adapter setup.
 // The app will fall back to standalone localStorage mode.
@@ -29,8 +30,8 @@ if (!_SUPABASE_CONFIGURED) { console.log("Healleo: Supabase not configured — r
 // ─── Supabase Client (loaded from CDN in index.html) ───
 let _supabase = null;
 function getSupabase() {
-  if (!_supabase && SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
-    _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (!_supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+    _supabase = _createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
   return _supabase;
 }
