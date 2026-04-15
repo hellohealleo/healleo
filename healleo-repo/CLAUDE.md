@@ -221,6 +221,28 @@ Current architecture is HIPAA-ready but not HIPAA-compliant:
 
 Phase 2 path: Add Express API server, route AI through AWS Bedrock (BAA included, same pricing), upgrade Supabase or self-host for storage BAA.
 
+## Target Architecture (Migration from Single-File)
+
+Migrating from single-file React (src/health-companion.jsx, ~330KB, Babel CDN) to Vite + component files.
+
+### Key Principles
+- src/config/icons.jsx: Single Icon component that renders emoji now, SVG later. Every icon reference in the app uses <Icon name="doctor" /> instead of hardcoded emoji.
+- src/config/theme.js: All colors, fonts, sizes in one file. Components import from here.
+- src/professionals/: Each professional's config (prompt, greeting, starters, plan types) in its own file. ProfessionalChat.jsx is the shared chat component.
+- src/services/: Pure logic (no UI) — storage, auth, AI, encryption, insights.
+- src/features/: One file per tab. Self-contained components.
+- src/components/ui/: Shared primitives (Button, Card, Input, RingProgress, RenderMD).
+
+### Migration Order
+1. Set up Vite, verify the app builds and runs
+2. Extract services/ (storage, auth, AI, encryption)
+3. Extract config/ (theme, icons, constants)
+4. Extract features one at a time
+5. Extract shared UI components
+
+### Deployment Note
+Vite builds to dist/. The output replaces the old build.py process. The .env vars (HEALLEO_API_PROXY, SUPABASE_URL, SUPABASE_ANON_KEY) should be injected via Vite's env handling (VITE_ prefix).
+
 ## Pending / Backlog
 
 1. Medication interaction checker (dedicated feature using FDA data)
