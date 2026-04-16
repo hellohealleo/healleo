@@ -1,4 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6a98b0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10" fill="#6a98b0" fill-opacity="0.12" stroke="#6a98b0"/>
-  <text x="12" y="16" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#6a98b0" stroke="none">D</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 144 144">
+  <!-- Generator: Adobe Illustrator 29.2.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 116)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #b394a7;
+      }
+
+      .st1 {
+        fill: none;
+        stroke: #fff;
+        stroke-miterlimit: 10;
+        stroke-width: 1.76px;
+      }
+    </style>
+  </defs>
+  <ellipse class="st0" cx="72" cy="72" rx="20.56" ry="20.18"/>
+  <path class="st1" d="M81.06,69.51h-6.57v-6.57c0-1.38-1.11-2.49-2.49-2.49s-2.49,1.12-2.49,2.49v6.57h-6.57c-1.38,0-2.49,1.11-2.49,2.49s1.11,2.49,2.49,2.49h6.57v6.57c0,1.38,1.11,2.49,2.49,2.49s2.49-1.12,2.49-2.49v-6.57h6.57c1.38,0,2.49-1.12,2.49-2.49s-1.11-2.49-2.49-2.49Z"/>
 </svg>
