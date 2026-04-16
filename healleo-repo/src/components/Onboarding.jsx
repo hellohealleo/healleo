@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DEFAULT_PROFILE } from "../lib/state.js";
 import { GOALS, CONDITIONS } from "../lib/profile.js";
 import { S } from "../styles/theme.js";
-import { HEALLEO_LOGO } from "../lib/assets.js";
+const LOGO_PATH = "/assets/logo.svg";
 
 export function Onboarding({state,update}){const[step,setStep]=useState(0);const[p,setP]=useState({...DEFAULT_PROFILE,...state.profile});const next=()=>setStep(s=>s+1);const finish=()=>update(s=>{s.profile=p;s.onboarded=true;});
   const name = p.name?.split(" ")[0] || "there";
@@ -14,7 +14,7 @@ export function Onboarding({state,update}){const[step,setStep]=useState(0);const
 
     {/* STEP 0: The Pitch */}
     {step===0&&<div className="fade-up" style={{textAlign:"center",padding:"20px 0"}}>
-      <img src={HEALLEO_LOGO} alt="Healleo" style={{height:132,objectFit:"contain",marginBottom:16}}/>
+      <img src={LOGO_PATH} alt="Healleo" style={{height:132,objectFit:"contain",marginBottom:16}}/>
       <p style={{fontSize:17,color:"var(--text)",maxWidth:420,margin:"0 auto",lineHeight:1.7,fontFamily:"var(--display)",fontWeight:400}}>
         Imagine having a doctor, nutritionist, personal trainer, and therapist — all working together, all knowing your full story.
       </p>

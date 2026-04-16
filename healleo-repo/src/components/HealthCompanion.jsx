@@ -4,7 +4,7 @@ import { DEFAULT_PROFILE, DEFAULT_STATE, today } from "../lib/state.js";
 import { Dashboard } from "./Dashboard.jsx";
 import { DoctorFinder } from "./DoctorFinder.jsx";
 import { DoctorSummary } from "./DoctorSummary.jsx";
-import { HEALLEO_LOGO } from "../lib/assets.js";
+const LOGO_PATH = "/assets/logo.svg";
 import { HealthTimeline } from "./HealthTimeline.jsx";
 import { LabResults } from "./LabResults.jsx";
 import { LogEntry } from "./LogEntry.jsx";
@@ -67,7 +67,7 @@ export function HealthCompanion({ onLogout, userEmail }) {
   return(
     <div style={S.app}><style>{globalCSS}</style>
       <header style={S.header}>
-        <div><img src={HEALLEO_LOGO} alt="Healleo" style={{height:82,objectFit:"contain"}}/></div>
+        <div><img src={LOGO_PATH} alt="Healleo" style={{height:82,objectFit:"contain"}}/></div>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           {state.aiMemory?.length>0&&<div style={{fontSize:16,color:"var(--accent3)",fontFamily:"var(--mono)"}}>🧠 {state.aiMemory.length}</div>}
           {streak>0&&<div style={S.streakBadge}>🔥 {streak}d</div>}
