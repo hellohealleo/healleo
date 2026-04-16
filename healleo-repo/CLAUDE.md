@@ -8,42 +8,95 @@ Tagline: "Healthcare Optimized by You"
 
 ## Tech Stack
 
-- **Frontend**: Single-file React app (`src/health-companion.jsx`, ~330KB)
-- **Runtime**: Browser-only via CDN React + Babel (no build toolchain, no npm/webpack)
+- **Frontend**: Modular React app (35+ files across `src/components/`, `src/lib/`, `src/styles/`)
+- **Build**: Vite + @vitejs/plugin-react — bundles to a single hashed JS asset in `dist/`
 - **AI**: Anthropic Claude Sonnet via Cloudflare Worker proxy
 - **Auth**: Dual-mode — localStorage (standalone) or Supabase Auth (cloud sync)
 - **Storage**: Dual-mode — localStorage or Supabase with AES-256-GCM client-side encryption
 - **Hosting**: Hostinger (static files) + Cloudflare Worker (AI proxy)
-- **Build**: `python3 build.py` reads `.env`, injects config, assembles `dist/index.html`
+- **Icons**: SVG files in `public/assets/icons/`, rendered via `<Icon>` component — swap files to change visuals, no code edits
+- **Design tokens**: `src/styles/theme.js` — single `tokens` object drives all colors, fonts, and CSS variables
+- **Dark mode**: `[data-theme="dark"]` CSS variables, toggle in header, persisted to `localStorage.healleoTheme`
 
 ## Build & Deploy
 
 ```bash
-python3 build.py          # Builds dist/index.html from src/ + .env
-python3 build.py --check  # Verify .env configuration
+npm install               # First time only
+npm run dev               # Local dev server at http://localhost:5173
+npm run build             # Production build → dist/
+npm run preview           # Serve dist/ locally to verify
 ```
 
-Upload `dist/index.html` and `dist/.htaccess` to Hostinger `public_html/`.
+Upload the **entire `dist/` folder** (index.html + assets/ + .htaccess) to Hostinger `public_html/`. Hashed filenames handle cache-busting automatically.
 
-Config lives in `.env` (gitignored). `.env.example` has the template. Required: `HEALLEO_API_PROXY`. Optional: `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
+Config lives in `.env.local` (gitignored). Vite exposes only `VITE_`-prefixed vars to the browser:
+- Required: `VITE_HEALLEO_API_PROXY`
+- Optional: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 
 ## File Structure
 
 ```
-src/health-companion.jsx   — The entire app (React, single file)
-src/supabase-adapter.js    — Cloud sync: auth, encryption, CRUD, migration
-deploy/.htaccess           — Apache config for Hostinger
-deploy/api-proxy-worker.js — Cloudflare Worker for AI API calls
-db/schema.sql              — Supabase PostgreSQL schema + RLS
-build.py                   — Assembles src/ + .env → dist/index.html
+src/
+  main.jsx                    — Vite entry: fetch interceptor, storage polyfill, mounts AuthGate
+  App.jsx                     — AuthGate (login / signup / unlock / forgot-password)
+  supabase-adapter.js         — Cloud sync: auth, AES-256-GCM encryption, CRUD, migration
+  components/
+    HealthCompanion.jsx       — App shell: tabs, header, theme toggle, data load/save
+    Dashboard.jsx             — Home: team grid, ring charts, insight cards, mood tracker
+    AskDoctor.jsx             — Doctor chat with PubMed/OpenFDA RAG
+    ProfessionalChat.jsx      — Shared chat for nutritionist/trainer/therapist + PROFESSIONAL_ROLES config
+    LogEntry.jsx              — Daily logging: manual, natural language, backfill, Apple Health import
+    Medications.jsx           — Drug autocomplete, structured records, active/discontinued
+    LabResults.jsx            — Manual entry, paste-to-parse, PDF upload, AI analysis
+    DoctorFinder.jsx          — NPI Registry search, saved doctors
+    DoctorSummary.jsx         — AI-compiled visit summary
+    HealthTimeline.jsx        — Chronological events, PDF upload
+    SymptomChecker.jsx        — Body-area picker, AI analysis
+    Profile.jsx               — Settings, password, account management
+    Supplements.jsx           — Camera scan, recommended supplements
+    Onboarding.jsx            — 6-step team intro flow
+    Nutrition.jsx             — Macros and meals
+    Exercise.jsx              — Activity log
+    ui/
+      Icon.jsx                — Renders SVG from /assets/icons/{name}.svg
+      RingProgress.jsx        — Circular progress chart
+      MiniBar.jsx             — Weekly bar chart
+      RenderMD.jsx            — Markdown→React for AI responses
+  lib/
+    ai.js                     — PubMed/OpenFDA RAG pipeline + askMedicalAI
+    patientContext.js          — buildPatientContext, extractMedicalTerms
+    insights.js               — generateInsights, generateTeamInsights (rule-based)
+    storage.js                — SUPABASE_MODE, loadData/saveData, session helpers
+    auth.js                   — hashPassword, generateSalt, generateToken
+    labs.js                   — LAB_CATEGORIES, LAB_RANGES, getLabFlag
+    drugs.js                  — DRUG_DATABASE (100+ medications)
+    symptoms.js               — BODY_AREAS, SYMPTOM_MAP, DOCTOR_SPECIALTIES
+    profile.js                — GOALS, CONDITIONS, MOODS, SUPPLEMENT_DB
+    state.js                  — DEFAULT_PROFILE, DEFAULT_STATE, today()
+    logs.js                   — getOrCreateLog, getWeekLogs, computeStreak
+    format.js                 — fmtHeight
+  styles/
+    theme.js                  — Design tokens (fonts, colors), globalCSS generator, S style constants
+public/
+  assets/
+    logo.svg                  — App logo (swap file to rebrand)
+    icons/                    — 35 SVG icons (swap files to restyle)
+  .htaccess                   — Apache config (auto-copied to dist/ on build)
+deploy/
+  api-proxy-worker.js         — Cloudflare Worker for AI API calls
+db/
+  schema.sql                  — Supabase PostgreSQL schema + RLS
 ```
 
 ## Architecture Decisions
 
-- **Single-file app**: All React components live in one JSX file. This was intentional for simplicity — no bundler, no npm, transpiled client-side via Babel CDN. Trade-off: large file, but zero build complexity.
+- **Modular components**: React app split into 35+ focused modules — one file per tab, one file per data domain. Extracted incrementally from the original single-file app with zero behavior changes (production bundle unchanged throughout).
+- **Design token system**: All colors, fonts, and shadows defined in a `tokens` object in `src/styles/theme.js`. The `globalCSS` string is generated from tokens, so changing the palette or fonts is a single-object edit. Dark mode is a parallel token set under `tokens.colors.dark`.
+- **Static asset icons**: Icons live as SVG files in `public/assets/icons/`, rendered by `<Icon name="..."/>`. Swap the file, rebuild, done — no code changes for visual updates. Emoji strings remain in AI prompt content and memory prefixes (sent to Claude as text).
 - **Dual-mode storage**: `SUPABASE_MODE` constant auto-detects at load. If `healleoAuth.isConfigured()` returns true (URL + key set), cloud mode activates. Otherwise, falls back to localStorage. Both paths use the same `loadData()`/`saveData()` functions.
 - **Client-side encryption**: Health data encrypted with AES-256-GCM in the browser before hitting Supabase. Encryption key derived from user's password via PBKDF2 (100K iterations). Server never sees plaintext. After page refresh, user must re-enter password to re-derive key ("unlock" screen).
 - **AI proxy**: Browser can't call Anthropic directly (CORS). Cloudflare Worker at `HEALLEO_API_PROXY` adds the API key server-side and forwards requests.
+- **Vite build**: Bundles React, Supabase adapter, and all components into a single hashed JS asset. Replaces the former Babel CDN + `build.py` pipeline. `public/.htaccess` auto-copies to `dist/` on every build.
 
 ## Design System
 
@@ -58,9 +111,9 @@ build.py                   — Assembles src/ + .env → dist/index.html
 - `--success: #5a8a52`, `--danger: #b85454`
 
 ### Typography
-- Display: 'DM Sans' (headings)
-- Body: 'DM Sans' (everything else)
-- Mono: 'DM Mono' (data, badges)
+- Display: 'Roboto Serif' (headings)
+- Body: 'Roboto' (everything else)
+- Mono: 'JetBrains Mono' (data, badges)
 
 ### Font Sizes (global S object)
 Footer 11, Tabs 13, SmallBtn 13, Chips 14, Labels 14, Inputs 14, h3 15, Buttons 15, h2 21
@@ -222,12 +275,13 @@ The four professionals must sound like real people, not AI assistants. Healthcar
 
 - All components are function components with hooks (useState, useEffect, useRef)
 - State updates use an `update(fn)` pattern: `update(s => { s.field = value; })` — deep clones via JSON.parse/stringify
-- Styles are inline objects referencing CSS variables (no CSS files)
-- The global `S` object holds shared style constants (near bottom of file)
-- `globalCSS` string holds CSS custom properties and keyframes (near top)
-- `today()` helper returns YYYY-MM-DD string
+- Styles are inline objects referencing CSS variables (no CSS files). The `S` object in `src/styles/theme.js` holds shared style constants
+- Design tokens live in `src/styles/theme.js` — `globalCSS` is generated from the `tokens` object, not hand-edited
+- Icons use `<Icon name="..."/>` from `src/components/ui/Icon.jsx` — renders SVGs from `public/assets/icons/`
+- `today()` helper returns YYYY-MM-DD string (from `src/lib/state.js`)
 - `RenderMD` component handles markdown→React for AI responses (supports headers, lists, blockquotes, bold, PubMed links)
-- AI API calls go to `https://api.anthropic.com/v1/messages` — the fetch interceptor rewrites this to `HEALLEO_API_PROXY` at runtime
+- AI API calls go to `https://api.anthropic.com/v1/messages` — the fetch interceptor in `src/main.jsx` rewrites this to `HEALLEO_API_PROXY` at runtime
+- Supabase adapter (`src/supabase-adapter.js`) is an ES module importing `@supabase/supabase-js`, configured via `import.meta.env.VITE_*` vars
 
 ## External APIs
 
@@ -240,7 +294,7 @@ The four professionals must sound like real people, not AI assistants. Healthcar
 
 ## Logo
 
-The Healleo logo is embedded as a base64 JPEG constant (`HEALLEO_LOGO`) at the top of health-companion.jsx. It's a molecular/neural network design in muted purples, pinks, corals, and teal on a cream (#f7f7ef) background with gold/olive text.
+The Healleo logo is an SVG file at `public/assets/logo.svg`, served as a static asset. To swap: replace the file and rebuild. Referenced via `LOGO_PATH` constant in `HealthCompanion.jsx`, `App.jsx`, and `Onboarding.jsx`.
 
 ## Deployment
 
@@ -261,27 +315,6 @@ Current architecture is HIPAA-ready but not HIPAA-compliant:
 
 Phase 2 path: Add Express API server, route AI through AWS Bedrock (BAA included, same pricing), upgrade Supabase or self-host for storage BAA.
 
-## Target Architecture (Migration from Single-File)
-
-Migrating from single-file React (src/health-companion.jsx, ~330KB, Babel CDN) to Vite + component files.
-
-### Key Principles
-- src/config/icons.jsx: Single Icon component that renders emoji now, SVG later. Every icon reference in the app uses <Icon name="doctor" /> instead of hardcoded emoji.
-- src/config/theme.js: All colors, fonts, sizes in one file. Components import from here.
-- src/professionals/: Each professional's config (prompt, greeting, starters, plan types) in its own file. ProfessionalChat.jsx is the shared chat component.
-- src/services/: Pure logic (no UI) — storage, auth, AI, encryption, insights.
-- src/features/: One file per tab. Self-contained components.
-- src/components/ui/: Shared primitives (Button, Card, Input, RingProgress, RenderMD).
-
-### Migration Order
-1. Set up Vite, verify the app builds and runs
-2. Extract services/ (storage, auth, AI, encryption)
-3. Extract config/ (theme, icons, constants)
-4. Extract features one at a time
-5. Extract shared UI components
-
-### Deployment Note
-Vite builds to dist/. The output replaces the old build.py process. The .env vars (HEALLEO_API_PROXY, SUPABASE_URL, SUPABASE_ANON_KEY) should be injected via Vite's env handling (VITE_ prefix).
 
 ## Pending / Backlog
 
@@ -298,7 +331,7 @@ Vite builds to dist/. The output replaces the old build.py process. The .env var
 3. Appointment scheduling/reminders
 4. Export health data as PDF
 5. Push notifications for meds/logging (needs service worker)
-6. Dark mode toggle
+6. ~~Dark mode toggle~~ (done — header toggle, persisted to localStorage, light + dark token sets)
 7. AI-scheduled insights (server-side AI replacing rule-based engine)
 8. Medication autocomplete expansion via NLM RxTerms API through proxy
 9. Backend Phase 2 — Express API server for AWS Bedrock (HIPAA BAA)
