@@ -14,6 +14,7 @@ import { createRoot } from "react-dom/client";
 
 // ─── 1. API proxy URL (required for AI features) ───
 const API_PROXY = import.meta.env.VITE_HEALLEO_API_PROXY || "";
+const PROXY_SECRET = import.meta.env.VITE_HEALLEO_PROXY_SECRET || "";
 window.HEALLEO_API_PROXY = API_PROXY;
 
 // ─── 2. Fetch interceptor: rewrite api.anthropic.com → our Cloudflare Worker ───
@@ -21,6 +22,7 @@ const _origFetch = window.fetch.bind(window);
 window.fetch = function (url, opts) {
   if (typeof url === "string" && url.includes("api.anthropic.com") && window.HEALLEO_API_PROXY) {
     url = url.replace("https://api.anthropic.com", window.HEALLEO_API_PROXY);
+    opts = { ...opts, headers: { ...opts?.headers, "x-healleo-token": PROXY_SECRET } };
   }
   return _origFetch(url, opts);
 };

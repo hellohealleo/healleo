@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { AskDoctor } from "./AskDoctor.jsx";
+import { Icon } from "./ui/Icon.jsx";
 import { DEFAULT_PROFILE, DEFAULT_STATE, today } from "../lib/state.js";
 import { Dashboard } from "./Dashboard.jsx";
 import { DoctorFinder } from "./DoctorFinder.jsx";
@@ -13,7 +14,7 @@ import { Onboarding } from "./Onboarding.jsx";
 import { ProfessionalChat } from "./ProfessionalChat.jsx";
 import { Profile } from "./Profile.jsx";
 import { S, globalCSS } from "../styles/theme.js";
-import { SUPABASE_MODE, loadData, saveData } from "../lib/storage.js";
+import { loadData, saveData } from "../lib/storage.js";
 import { Supplements } from "./Supplements.jsx";
 import { SymptomChecker } from "./SymptomChecker.jsx";
 import { computeStreak, getOrCreateLog, getWeekLogs } from "../lib/logs.js";
@@ -33,18 +34,13 @@ export function HealthCompanion({ onLogout, userEmail }) {
 
   useEffect(()=>{loadData().then(d=>{if(d)setState(s=>({...DEFAULT_STATE,...d,profile:{...DEFAULT_PROFILE,...d?.profile},labResults:d.labResults||[],healthTimeline:d.healthTimeline||[],aiMemory:d.aiMemory||[],savedDoctors:d.savedDoctors||[],medications:d.medications||[],sharedPlans:d.sharedPlans||[],dismissedCards:d.dismissedCards||[]}));setLoaded(true);});},[]);
 
-  // Save data — debounced for Supabase mode (avoid excessive network calls)
+  // Save data — debounced to avoid excessive network calls
   const saveTimer = useRef(null);
   useEffect(()=>{
     if(!loaded) return;
-    if(SUPABASE_MODE) {
-      // Debounce Supabase saves to 2 seconds after last change
-      if(saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(() => saveData(state), 2000);
-      return () => { if(saveTimer.current) clearTimeout(saveTimer.current); };
-    } else {
-      saveData(state);
-    }
+    if(saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveData(state), 2000);
+    return () => { if(saveTimer.current) clearTimeout(saveTimer.current); };
   },[state,loaded]);
 
   const update=fn=>setState(prev=>{const n=JSON.parse(JSON.stringify(prev));fn(n);return n;});
@@ -62,13 +58,13 @@ export function HealthCompanion({ onLogout, userEmail }) {
   const weight=parseFloat(state.profile.weight)||150;
   const waterGoal=Math.round(weight*0.5);
   const streak=computeStreak(state.logs);
-  const TABS=[["dashboard","📊 Home"],["ask","🩺 Doctor"],["nutritionist","🍓 Nutrition"],["trainer","🏋️ Trainer"],["therapist","💜 Therapist"],["meds","💊 Meds"],["labs","🧪 Labs"],["symptoms","🔍 Symptoms"],["summary","📋 Summary"],["timeline","📜 Timeline"],["doctors","👨‍⚕️ Doctors"],["log","✏️ Log"],["supplements","💊 Suppl."]];
+  const TABS=[["dashboard","📊 Home"],["ask",<><Icon name="doctor" size={16}/> Doctor</>],["nutritionist",<><Icon name="nutrition" size={16}/> Nutrition</>],["trainer",<><Icon name="trainer" size={16}/> Trainer</>],["therapist",<><Icon name="therapist" size={16}/> Therapist</>],["meds","💊 Meds"],["labs","🧪 Labs"],["symptoms","🔍 Symptoms"],["summary","📋 Summary"],["timeline","📜 Timeline"],["doctors","👨‍⚕️ Doctors"],["log","✏️ Log"],["supplements","💊 Suppl."]];
 
   return(
     <div style={S.app}><style>{globalCSS}</style>
-      <header style={S.header}>
-        <div><img src={LOGO_PATH} alt="Healleo" style={{height:82,objectFit:"contain"}}/></div>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <header style={{...S.header,margin:"0 -16px",padding:"20px 16px 6px"}}>
+        <div><img src={LOGO_PATH} alt="Healleo" style={{height:138,objectFit:"contain",display:"block"}}/></div>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginLeft:"auto"}}>
           {state.aiMemory?.length>0&&<div style={{fontSize:16,color:"var(--accent3)",fontFamily:"var(--mono)"}}>🧠 {state.aiMemory.length}</div>}
           {streak>0&&<div style={S.streakBadge}>🔥 {streak}d</div>}
           <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Light mode":"Dark mode"} style={{...S.iconBtn,background:"var(--muted)",color:"var(--text)"}}>{theme==="dark"?"☀":"☾"}</button>
