@@ -202,7 +202,7 @@ export function Medications({state, update}) {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 600 }}>{med.name}</div>
                     <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
-                      {med.dose && <span style={{ fontSize: 13, fontFamily: "var(--mono)", color: "var(--accent)", background: "rgba(138,122,74,0.1)", padding: "2px 8px", borderRadius: 6 }}>{med.dose}</span>}
+                      {med.dose && <span style={{ fontSize: 13, fontFamily: "var(--mono)", color: "var(--accent)", background: "rgba(107,90,36,0.1)", padding: "2px 8px", borderRadius: 6 }}>{med.dose}</span>}
                       <span style={{ fontSize: 13, color: "var(--dim)" }}>{med.frequency}</span>
                     </div>
                     {med.startDate && <div style={{ fontSize: 12, color: "var(--dim)", marginTop: 4 }}>Started: {med.startDate}</div>}
@@ -271,7 +271,7 @@ export function Medications({state, update}) {
       )}
 
       {/* How meds are used */}
-      <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(138,122,74,0.07)", borderRadius: 8 }}>
+      <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(107,90,36,0.07)", borderRadius: 8 }}>
         <p style={{ fontSize: 13, color: "var(--dim)", lineHeight: 1.6 }}>
           Your medications are shared with your entire Healleo team. Dr. Healleo checks drug interactions and side effects. Your nutritionist accounts for nutrient depletion (e.g. metformin + B12). Your trainer adjusts for meds that affect heart rate or cause fatigue. Your therapist considers mood-altering side effects.
         </p>

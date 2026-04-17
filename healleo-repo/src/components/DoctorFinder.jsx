@@ -409,7 +409,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <div><div style={{fontSize:16,fontWeight:600}}>{doc.name}</div><div style={{fontSize:14,color:"var(--accent)",marginTop:2}}>{doc.specialty}</div>{doc.phone&&<div style={{fontSize:16,color:"var(--dim)",marginTop:2}}>{doc.phone}</div>}</div>
                     <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                      <span style={{fontSize:15,padding:"2px 6px",background:"rgba(122,155,181,0.1)",borderRadius:6,color:"var(--accent3)"}}>MyChart</span>
+                      <span style={{fontSize:15,padding:"2px 6px",background:"rgba(179,148,167,0.1)",borderRadius:6,color:"var(--accent3)"}}>MyChart</span>
                       <button onClick={(e) => {e.stopPropagation();removeDoctor(doc.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:15}}>✕</button>
                     </div>
                   </div>

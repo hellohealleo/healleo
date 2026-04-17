@@ -220,7 +220,7 @@ export default function AuthGate() {
             </p>
           </div>
           {error && <div style={{ padding: "8px 12px", background: "rgba(184,84,84,0.08)", border: "1px solid rgba(184,84,84,0.2)", borderRadius: 8, marginBottom: 12, fontSize: 14, color: "#8b3a3a" }}>{error}</div>}
-          {success && <div style={{ padding: "8px 12px", background: "rgba(138,122,74,0.08)", border: "1px solid rgba(138,122,74,0.18)", borderRadius: 8, marginBottom: 12, fontSize: 14, color: "var(--success)" }}>{success}</div>}
+          {success && <div style={{ padding: "8px 12px", background: "rgba(107,90,36,0.08)", border: "1px solid rgba(107,90,36,0.18)", borderRadius: 8, marginBottom: 12, fontSize: 14, color: "var(--success)" }}>{success}</div>}
           <button onClick={handleMigrate} disabled={loading} style={{ ...S.primaryBtn, width: "100%", padding: "12px 18px", fontSize: 16, marginBottom: 10, opacity: loading ? 0.6 : 1 }}>
             {loading ? "Migrating..." : "Yes, Migrate My Data"}
           </button>
@@ -270,7 +270,7 @@ export default function AuthGate() {
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your account email" style={S.input} onKeyDown={e => e.key === "Enter" && handleForgotPw()} />
           </label>
           {error && <div style={{ padding: "8px 12px", background: "rgba(184,84,84,0.08)", border: "1px solid rgba(184,84,84,0.2)", borderRadius: 8, marginBottom: 12, fontSize: 15, color: "#8b3a3a" }}>{error}</div>}
-          {success && <div style={{ padding: "8px 12px", background: "rgba(138,122,74,0.08)", border: "1px solid rgba(138,122,74,0.18)", borderRadius: 8, marginBottom: 12, fontSize: 15, color: "var(--success)" }}>{success}</div>}
+          {success && <div style={{ padding: "8px 12px", background: "rgba(107,90,36,0.08)", border: "1px solid rgba(107,90,36,0.18)", borderRadius: 8, marginBottom: 12, fontSize: 15, color: "var(--success)" }}>{success}</div>}
           <button onClick={handleForgotPw} style={{ ...S.primaryBtn, width: "100%", padding: "12px 18px", fontSize: 17, marginBottom: 14 }}>Send Reset Email</button>
           <div style={{ textAlign: "center", fontSize: 16, color: "var(--dim)" }}>
             <button onClick={() => { setAuthState("login"); setError(""); setSuccess(""); setPassword(""); }} style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer", fontWeight: 600, fontSize: 16, fontFamily: "var(--body)" }}>

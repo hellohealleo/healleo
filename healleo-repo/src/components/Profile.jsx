@@ -42,9 +42,20 @@ export function Profile({state,update,onLogout,userEmail}){
         {pwMsg && <div style={{fontSize:14,marginTop:6,color:pwMsg.startsWith("✓")?"var(--success)":"var(--danger)"}}>{pwMsg}</div>}
         <button onClick={changePassword} style={{...S.primaryBtn,marginTop:8,fontSize:15}}>Update Password</button>
       </div>}
-      <div style={{marginTop:10,padding:"8px 12px",background:"rgba(106,152,176,0.08)",borderRadius:8,display:"flex",alignItems:"center",gap:8}}>
+      <div style={{marginTop:10,padding:"8px 12px",background:"rgba(179,148,167,0.08)",borderRadius:8,display:"flex",alignItems:"center",gap:8}}>
         <span style={{fontSize:14}}>☁️</span>
         <div><span style={{fontSize:13,color:"var(--accent3)",fontWeight:600}}>Cloud sync active</span><span style={{fontSize:12,color:"var(--dim)",marginLeft:6}}>Encrypted with AES-256-GCM · Data accessible from any device</span></div>
+      </div>
+    </div>
+
+    {/* Insurance toggle */}
+    <div style={{...S.card,marginTop:10,padding:16}}>
+      <h3 style={S.h3}>🏥 Insurance</h3>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
+        <div><div style={{fontSize:14,fontWeight:500}}>I have employer-based insurance</div><div style={{fontSize:13,color:"var(--dim)",marginTop:2}}>Hides the Insurance Finder tab when enabled</div></div>
+        <button onClick={()=>{const v=!p.hasEmployerInsurance;setP({...p,hasEmployerInsurance:v});update(s=>{s.profile.hasEmployerInsurance=v;});}} style={{width:44,height:24,borderRadius:12,border:"none",cursor:"pointer",background:p.hasEmployerInsurance?"var(--accent)":"var(--muted)",position:"relative",transition:"background 0.2s"}}>
+          <div style={{width:18,height:18,borderRadius:9,background:"#fff",position:"absolute",top:3,left:p.hasEmployerInsurance?23:3,transition:"left 0.2s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/>
+        </button>
       </div>
     </div>
 

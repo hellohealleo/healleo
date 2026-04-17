@@ -3,6 +3,7 @@ import { S } from "../styles/theme.js";
 import { today } from "../lib/state.js";
 import { LAB_CATEGORIES, LAB_RANGES, getLabFlag } from "../lib/labs.js";
 import { RenderMD } from "./ui/RenderMD.jsx";
+import { Icon } from "./ui/Icon.jsx";
 
 export function LabResults({state,update}) {
   const [mode,setMode]=useState("view"); // view, add, upload, detail
@@ -120,7 +121,7 @@ export function LabResults({state,update}) {
           </div>;
         })}
       </div>
-      <button onClick={()=>analyzeResults(viewing)} disabled={analyzing} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:analyzing?0.6:1}}>{analyzing?"🧠 Analyzing with your full history...":"🩺 AI Analysis of These Results"}</button>
+      <button onClick={()=>analyzeResults(viewing)} disabled={analyzing} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:analyzing?0.6:1}}>{analyzing?"🧠 Analyzing with your full history...":<><Icon name="doctor" size={16}/> AI Analysis of These Results</>}</button>
       {aiAnalysis&&<div style={{...S.card,marginTop:12}}><RenderMD text={aiAnalysis}/></div>}
     </div>;
   }
@@ -194,7 +195,7 @@ export function LabResults({state,update}) {
 
     {parsing&&<div style={{...S.card,marginTop:12,padding:16,textAlign:"center"}}><div style={{display:"flex",gap:4,justifyContent:"center"}}>{[0,1,2].map(i=><div key={i} style={{width:7,height:7,borderRadius:"50%",background:"var(--accent)",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</div><div style={{fontSize:15,color:"var(--dim)",marginTop:8}}>Extracting lab values from PDF...</div></div>}
 
-    {labs.length>0&&<div style={{...S.card,marginTop:12,padding:14,borderLeft:"3px solid var(--accent3)",background:"rgba(122,155,181,0.04)"}}>
+    {labs.length>0&&<div style={{...S.card,marginTop:12,padding:14,borderLeft:"3px solid var(--accent3)",background:"rgba(179,148,167,0.04)"}}>
       <div style={{fontSize:15,color:"var(--dim)"}}>🧠 <strong>AI Learning:</strong> Your {labs.length} lab report{labs.length>1?"s":""} with {labs.reduce((s,lr)=>s+lr.results.length,0)} total test values are being used to personalize every AI response. The more data you add, the smarter your health concierge becomes.</div>
     </div>}
 

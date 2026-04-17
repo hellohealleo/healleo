@@ -3,6 +3,7 @@ import { S } from "../styles/theme.js";
 import { today } from "../lib/state.js";
 import { RenderMD } from "./ui/RenderMD.jsx";
 import { askMedicalAI } from "../lib/ai.js";
+import { Icon } from "./ui/Icon.jsx";
 
 export function AskDoctor({state,update}) {
   const [input,setInput]=useState("");const [loading,setLoading]=useState(false);const chatEnd=useRef(null);
@@ -24,17 +25,17 @@ export function AskDoctor({state,update}) {
 
   return(<div className="fade-up">
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-      <div><h2 style={S.h2}>🩺 Dr. Healleo</h2><p style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Your data, {dataPoints} points deep</p></div>
+      <div><h2 style={S.h2}><Icon name="doctor" size={20} style={{marginRight:6}}/> Dr. Healleo</h2><p style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Your data, {dataPoints} points deep</p></div>
       {msgs.length>0&&<button onClick={()=>update(s=>{s.chatHistory=[];})} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",fontSize:14}}>Clear</button>}
     </div>
     {dataPoints>0&&<div style={{display:"flex",gap:6,marginTop:10,flexWrap:"wrap"}}>
-      {state.labResults?.length>0&&<span style={{fontSize:16,padding:"3px 8px",background:"rgba(138,122,74,0.1)",borderRadius:10,color:"var(--accent)"}}>🧪 {state.labResults.length} lab reports</span>}
-      {state.symptomSessions?.length>0&&<span style={{fontSize:16,padding:"3px 8px",background:"rgba(196,122,98,0.1)",borderRadius:10,color:"var(--accent4)"}}>🔍 {state.symptomSessions.length} symptom checks</span>}
-      {state.aiMemory?.length>0&&<span style={{fontSize:16,padding:"3px 8px",background:"rgba(122,155,181,0.1)",borderRadius:10,color:"var(--accent3)"}}>🧠 {state.aiMemory.length} learned insights</span>}
+      {state.labResults?.length>0&&<span style={{fontSize:16,padding:"3px 8px",background:"rgba(107,90,36,0.1)",borderRadius:10,color:"var(--accent)"}}>🧪 {state.labResults.length} lab reports</span>}
+      {state.symptomSessions?.length>0&&<span style={{fontSize:16,padding:"3px 8px",background:"rgba(0,190,214,0.1)",borderRadius:10,color:"var(--accent4)"}}>🔍 {state.symptomSessions.length} symptom checks</span>}
+      {state.aiMemory?.length>0&&<span style={{fontSize:16,padding:"3px 8px",background:"rgba(179,148,167,0.1)",borderRadius:10,color:"var(--accent3)"}}>🧠 {state.aiMemory.length} learned insights</span>}
     </div>}
     <div style={{...S.card,marginTop:12,padding:0,minHeight:400,maxHeight:"62vh",display:"flex",flexDirection:"column"}}>
       <div style={{flex:1,overflow:"auto",padding:16}}>
-        {msgs.length===0&&!loading&&<div style={{textAlign:"center",padding:"24px 10px"}}><div style={{fontSize:40,marginBottom:10}}>🩺</div><p style={{fontFamily:"var(--display)",fontSize:16,fontWeight:500}}>Hey — I've been going through your chart.</p><p style={{fontSize:15,color:"var(--dim)",margin:"6px 0 16px",lineHeight:1.5}}>I have your labs, symptoms, meds, lifestyle data — the whole picture. Ask me anything. The more you share, the better I get at connecting the dots for you.</p>
+        {msgs.length===0&&!loading&&<div style={{textAlign:"center",padding:"24px 10px"}}><div style={{marginBottom:10}}><Icon name="doctor" size={48}/></div><p style={{fontFamily:"var(--display)",fontSize:16,fontWeight:500}}>Hey — I've been going through your chart.</p><p style={{fontSize:15,color:"var(--dim)",margin:"6px 0 16px",lineHeight:1.5}}>I have your labs, symptoms, meds, lifestyle data — the whole picture. Ask me anything. The more you share, the better I get at connecting the dots for you.</p>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>{STARTERS.map(s=><button key={s} onClick={()=>send(s)} style={{padding:"10px 14px",background:"var(--bg)",border:"1px solid var(--muted)",borderRadius:10,fontSize:15,color:"var(--text)",cursor:"pointer",textAlign:"left",fontFamily:"var(--body)"}} onMouseEnter={e=>e.target.style.borderColor="var(--accent)"} onMouseLeave={e=>e.target.style.borderColor="var(--muted)"}>💬 {s}</button>)}</div></div>}
         {msgs.map((m,i)=><div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start",marginBottom:12}}><div style={{maxWidth:"88%",padding:"12px 16px",borderRadius:14,background:m.role==="user"?"var(--accent)":"var(--bg)",color:m.role==="user"?"#fff":"var(--text)",...(m.role==="user"?{borderBottomRightRadius:4}:{borderBottomLeftRadius:4})}}>{m.role==="user"?<p style={{fontSize:16,lineHeight:1.5}}>{m.content}</p>:<RenderMD text={m.content}/>}</div></div>)}
         {loading&&<div style={{padding:"12px 0"}}><div style={{display:"flex",gap:10,alignItems:"center"}}><div style={{display:"flex",gap:4}}>{[0,1,2].map(i=><div key={i} style={{width:7,height:7,borderRadius:"50%",background:"var(--accent)",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</div><span style={{fontSize:15,color:"var(--dim)"}}>Searching PubMed, FDA & web...</span></div><div style={{display:"flex",gap:4,marginTop:6,flexWrap:"wrap"}}>{["📄 PubMed","🏛️ OpenFDA","🔍 Web Search","🧠 AI Analysis"].map(s=><span key={s} style={{fontSize:15,padding:"2px 6px",background:"var(--bg)",borderRadius:6,color:"var(--dim)",animation:"pulse 2s ease infinite"}}>{s}</span>)}</div></div>}

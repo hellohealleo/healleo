@@ -4,6 +4,7 @@ import { Icon } from "./ui/Icon.jsx";
 import { DEFAULT_PROFILE, DEFAULT_STATE, today } from "../lib/state.js";
 import { Dashboard } from "./Dashboard.jsx";
 import { DoctorFinder } from "./DoctorFinder.jsx";
+import { InsuranceFinder } from "./InsuranceFinder.jsx";
 import { DoctorSummary } from "./DoctorSummary.jsx";
 const LOGO_PATH = "/assets/logo.svg";
 import { HealthTimeline } from "./HealthTimeline.jsx";
@@ -58,11 +59,12 @@ export function HealthCompanion({ onLogout, userEmail }) {
   const weight=parseFloat(state.profile.weight)||150;
   const waterGoal=Math.round(weight*0.5);
   const streak=computeStreak(state.logs);
-  const TABS=[["dashboard","📊 Home"],["ask",<><Icon name="doctor" size={16}/> Doctor</>],["nutritionist",<><Icon name="nutrition" size={16}/> Nutrition</>],["trainer",<><Icon name="trainer" size={16}/> Trainer</>],["therapist",<><Icon name="therapist" size={16}/> Therapist</>],["meds","💊 Meds"],["labs","🧪 Labs"],["symptoms","🔍 Symptoms"],["summary","📋 Summary"],["timeline","📜 Timeline"],["doctors","👨‍⚕️ Doctors"],["log","✏️ Log"],["supplements","💊 Suppl."]];
+  const allTabs=[["dashboard","📊 Home"],["ask",<><Icon name="doctor" size={16}/> Doctor</>],["nutritionist",<><Icon name="nutrition" size={16}/> Nutrition</>],["trainer",<><Icon name="trainer" size={16}/> Trainer</>],["therapist",<><Icon name="therapist" size={16}/> Therapist</>],["meds","💊 Meds"],["labs","🧪 Labs"],["symptoms","🔍 Symptoms"],["summary","📋 Summary"],["timeline","📜 Timeline"],["doctors","👨‍⚕️ Doctors"],["insurance","🏥 Insurance"],["log","✏️ Log"],["supplements","💊 Suppl."]];
+  const TABS = state.profile.hasEmployerInsurance ? allTabs.filter(([k]) => k !== "insurance") : allTabs;
 
   return(
     <div style={S.app}><style>{globalCSS}</style>
-      <header style={{...S.header,margin:"0 -16px",padding:"20px 16px 6px"}}>
+      <header style={S.header}>
         <div><img src={LOGO_PATH} alt="Healleo" style={{height:138,objectFit:"contain",display:"block"}}/></div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginLeft:"auto"}}>
           {state.aiMemory?.length>0&&<div style={{fontSize:16,color:"var(--accent3)",fontFamily:"var(--mono)"}}>🧠 {state.aiMemory.length}</div>}
@@ -84,6 +86,7 @@ export function HealthCompanion({ onLogout, userEmail }) {
         {tab==="summary"&&<DoctorSummary state={state}/>}
         {tab==="timeline"&&<HealthTimeline state={state} update={update}/>}
         {tab==="doctors"&&<DoctorFinder state={state} update={update}/>}
+        {tab==="insurance"&&<InsuranceFinder state={state} update={update}/>}
         {tab==="log"&&<LogEntry log={todayLog} updateLog={updateLog} selDate={selDate} setSelDate={setSelDate} waterGoal={waterGoal} state={state} update={update}/>}
         {tab==="nutrition"&&<Nutrition log={todayLog} updateLog={updateLog} profile={state.profile} weekLogs={weekLogs} weekDays={weekDays}/>}
         {tab==="exercise"&&<Exercise log={todayLog} updateLog={updateLog} weekLogs={weekLogs} weekDays={weekDays}/>}

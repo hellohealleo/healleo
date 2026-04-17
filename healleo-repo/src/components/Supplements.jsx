@@ -65,7 +65,7 @@ Be precise with the supplement name — use the standard supplement name (e.g. "
     </div>
     <input ref={camRef} type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={scanSupplement}/>
     {scanning&&<div style={{marginTop:10,textAlign:"center"}}><div style={{display:"flex",gap:4,justifyContent:"center"}}>{[0,1,2].map(i=><div key={i} style={{width:7,height:7,borderRadius:"50%",background:"var(--accent2)",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</div><div style={{fontSize:14,color:"var(--dim)",marginTop:6}}>Reading supplement label...</div></div>}
-    {scanResult&&!scanResult.error&&<div style={{marginTop:10,padding:12,background:"rgba(138,122,74,0.07)",borderRadius:8,border:"1px solid rgba(138,122,74,0.15)"}}>
+    {scanResult&&!scanResult.error&&<div style={{marginTop:10,padding:12,background:"rgba(107,90,36,0.07)",borderRadius:8,border:"1px solid rgba(107,90,36,0.15)"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontWeight:600,fontSize:16,color:"var(--success)"}}>✓ {scanResult.name}</span>{scanResult.brand&&<span style={{fontSize:16,color:"var(--dim)"}}>{scanResult.brand}</span>}</div>
       {scanResult.dose&&<div style={{fontSize:14,color:"var(--text)",marginTop:4}}>Dose: <strong>{scanResult.dose}</strong></div>}
       {scanResult.directions&&<div style={{fontSize:16,color:"var(--dim)",marginTop:4,lineHeight:1.4}}>📋 {scanResult.directions}</div>}

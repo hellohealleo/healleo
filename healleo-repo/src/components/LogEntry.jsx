@@ -313,9 +313,9 @@ CRITICAL RULES:
       {/* Result feedback */}
       {nlResult && (
         <div style={{marginTop:10,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,
-          background:nlResult.success?"rgba(138,122,74,0.08)":"rgba(184,84,84,0.08)",
+          background:nlResult.success?"rgba(107,90,36,0.08)":"rgba(184,84,84,0.08)",
           color:nlResult.success?"var(--success)":"var(--danger)",
-          border:`1px solid ${nlResult.success?"rgba(138,122,74,0.18)":"rgba(196,90,90,0.2)"}`
+          border:`1px solid ${nlResult.success?"rgba(107,90,36,0.18)":"rgba(196,90,90,0.2)"}`
         }}>
           {nlResult.success && <span style={{fontWeight:600}}>✓ Logged! </span>}
           {nlResult.summary}
@@ -355,7 +355,7 @@ CRITICAL RULES:
     <input ref={healthFileRef} type="file" accept=".xml" style={{display:"none"}} onChange={handleHealthImport}/>
 
     {healthImporting&&<div style={{...S.card,marginTop:10,padding:14,textAlign:"center"}}><div style={{display:"flex",gap:4,justifyContent:"center"}}>{[0,1,2].map(i=><div key={i} style={{width:7,height:7,borderRadius:"50%",background:"var(--accent)",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</div><div style={{fontSize:15,color:"var(--dim)",marginTop:8}}>Processing Apple Health data...</div></div>}
-    {healthResult&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,background:healthResult.success?"rgba(138,122,74,0.08)":"rgba(184,84,84,0.08)",color:healthResult.success?"var(--success)":"var(--danger)",border:`1px solid ${healthResult.success?"rgba(138,122,74,0.18)":"rgba(196,90,90,0.2)"}`}}>{healthResult.success&&<span style={{fontWeight:600}}>✓ </span>}{healthResult.summary}</div>}
+    {healthResult&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,background:healthResult.success?"rgba(107,90,36,0.08)":"rgba(184,84,84,0.08)",color:healthResult.success?"var(--success)":"var(--danger)",border:`1px solid ${healthResult.success?"rgba(107,90,36,0.18)":"rgba(196,90,90,0.2)"}`}}>{healthResult.success&&<span style={{fontWeight:600}}>✓ </span>}{healthResult.summary}</div>}
 
     {showBackfill&&<div style={{...S.card,marginTop:10,padding:16,borderLeft:"3px solid var(--accent2)"}}>
       <h3 style={S.h3}>📅 Backfill Your History</h3>
@@ -364,7 +364,7 @@ CRITICAL RULES:
       <button onClick={backfillHistory} disabled={backfillLoading||!backfillText.trim()} style={{...S.primaryBtn,width:"100%",marginTop:10,padding:14,opacity:backfillLoading?0.6:1}}>
         {backfillLoading?<><span style={{display:"inline-flex",gap:3,marginRight:8}}>{[0,1,2].map(i=><span key={i} style={{width:6,height:6,borderRadius:"50%",background:"#fff",display:"inline-block",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</span>Generating 30 days of history...</>:"📅 Generate Historical Data"}
       </button>
-      {backfillResult&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,background:backfillResult.success?"rgba(138,122,74,0.08)":"rgba(184,84,84,0.08)",color:backfillResult.success?"var(--success)":"var(--danger)",border:`1px solid ${backfillResult.success?"rgba(138,122,74,0.18)":"rgba(196,90,90,0.2)"}`}}>{backfillResult.success&&<span style={{fontWeight:600}}>✓ </span>}{backfillResult.summary}{backfillResult.count>0&&<span> ({backfillResult.count} days added)</span>}</div>}
+      {backfillResult&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,background:backfillResult.success?"rgba(107,90,36,0.08)":"rgba(184,84,84,0.08)",color:backfillResult.success?"var(--success)":"var(--danger)",border:`1px solid ${backfillResult.success?"rgba(107,90,36,0.18)":"rgba(196,90,90,0.2)"}`}}>{backfillResult.success&&<span style={{fontWeight:600}}>✓ </span>}{backfillResult.summary}{backfillResult.count>0&&<span> ({backfillResult.count} days added)</span>}</div>}
       <div style={{fontSize:16,color:"var(--dim)",marginTop:8,lineHeight:1.5}}>💡 Only fills in days that don't already have data. Existing logs are preserved. You can run this multiple times to add different routine aspects.</div>
     </div>}
 

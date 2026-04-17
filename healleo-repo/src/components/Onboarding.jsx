@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DEFAULT_PROFILE } from "../lib/state.js";
 import { GOALS, CONDITIONS } from "../lib/profile.js";
 import { S } from "../styles/theme.js";
+import { Icon } from "./ui/Icon.jsx";
 const LOGO_PATH = "/assets/logo.svg";
 
 export function Onboarding({state,update}){const[step,setStep]=useState(0);const[p,setP]=useState({...DEFAULT_PROFILE,...state.profile});const next=()=>setStep(s=>s+1);const finish=()=>update(s=>{s.profile=p;s.onboarded=true;});
@@ -30,13 +31,13 @@ export function Onboarding({state,update}){const[step,setStep]=useState(0);const
       <p style={{fontSize:14,color:"var(--dim)",marginTop:4,lineHeight:1.5}}>Four professionals. One shared picture of your health. They'll learn more about you with every interaction.</p>
       <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:16}}>
         {[
-          {icon:"🩺",title:"Dr. Healleo",sub:"Your Doctor",desc:"Analyzes your labs, symptoms, and medications. Cites real PubMed research and FDA data. Connects dots a 15-minute office visit can't.",color:"var(--accent3)"},
-          {icon:"🍓",title:"Healleo Nutrition",sub:"Your Nutritionist",desc:"Builds meal plans from your actual body data — not generic advice. Knows how your meds and conditions affect what you should eat.",color:"var(--accent)"},
-          {icon:"🏋️",title:"Healleo Fitness",sub:"Your Trainer",desc:"Designs workouts that respect your conditions and limitations. Checks your sleep before adding volume. Builds programs you'll actually stick with.",color:"var(--accent4)"},
-          {icon:"💜",title:"Healleo Wellness",sub:"Your Therapist",desc:"Watches your mood patterns and connects them to everything else — sleep, diagnosis, medications. A safe space that understands the full picture.",color:"var(--accent2)"},
+          {icon:"doctor",title:"Dr. Healleo",sub:"Your Doctor",desc:"Analyzes your labs, symptoms, and medications. Cites real PubMed research and FDA data. Connects dots a 15-minute office visit can't.",color:"var(--accent3)"},
+          {icon:"nutrition",title:"Healleo Nutrition",sub:"Your Nutritionist",desc:"Builds meal plans from your actual body data — not generic advice. Knows how your meds and conditions affect what you should eat.",color:"var(--accent5)"},
+          {icon:"trainer",title:"Healleo Fitness",sub:"Your Trainer",desc:"Designs workouts that respect your conditions and limitations. Checks your sleep before adding volume. Builds programs you'll actually stick with.",color:"var(--accent4)"},
+          {icon:"therapist",title:"Healleo Wellness",sub:"Your Therapist",desc:"Watches your mood patterns and connects them to everything else — sleep, diagnosis, medications. A safe space that understands the full picture.",color:"var(--accent2)"},
         ].map((pro,i) => (
           <div key={i} style={{display:"flex",gap:12,padding:"14px 16px",background:"var(--bg)",borderRadius:12,borderLeft:`3px solid ${pro.color}`}}>
-            <div style={{fontSize:28,flexShrink:0,marginTop:2}}>{pro.icon}</div>
+            <div style={{flexShrink:0,marginTop:2}}><Icon name={pro.icon} size={32}/></div>
             <div>
               <div style={{fontSize:15,fontWeight:600}}>{pro.title}</div>
               <div style={{fontSize:12,color:pro.color,fontWeight:600,marginTop:1}}>{pro.sub}</div>
@@ -65,7 +66,7 @@ export function Onboarding({state,update}){const[step,setStep]=useState(0);const
 
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         <div style={{padding:"12px 14px",background:"var(--bg)",borderRadius:10,borderLeft:"3px solid var(--accent3)"}}>
-          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><span style={{fontSize:18}}>🩺</span><span style={{fontWeight:600,fontSize:14}}>Dr. Healleo</span></div>
+          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><Icon name="doctor" size={20}/><span style={{fontWeight:600,fontSize:14}}>Dr. Healleo</span></div>
           <p style={{fontSize:13,color:"var(--dim)",lineHeight:1.5,fontStyle:"italic"}}>{
             hasConditions ? `I see ${p.conditions.filter(c=>c!=="None").join(" and ")} in your profile. I'll want to see your latest labs to get a baseline — upload them anytime and I'll flag what matters.`
             : p.medications ? `You've got medications listed — I'll check for interactions and keep an eye on how they connect to your labs and symptoms over time.`
@@ -73,8 +74,8 @@ export function Onboarding({state,update}){const[step,setStep]=useState(0);const
           }</p>
         </div>
 
-        <div style={{padding:"12px 14px",background:"var(--bg)",borderRadius:10,borderLeft:"3px solid var(--accent)"}}>
-          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><span style={{fontSize:18}}>🍓</span><span style={{fontWeight:600,fontSize:14}}>Nutritionist</span></div>
+        <div style={{padding:"12px 14px",background:"var(--bg)",borderRadius:10,borderLeft:"3px solid var(--accent5)"}}>
+          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><Icon name="nutrition" size={20}/><span style={{fontWeight:600,fontSize:14}}>Nutritionist</span></div>
           <p style={{fontSize:13,color:"var(--dim)",lineHeight:1.5,fontStyle:"italic"}}>{
             goalStr?.includes("lose weight") ? `Weight loss goal noted. I'll build around a sustainable deficit — no crash diets. Log a few days of meals and I'll have real numbers to work with.`
             : goalStr?.includes("build muscle") ? `Muscle building — nice. At ${p.weight||"your"} lbs, you'll want around ${Math.round((parseFloat(p.weight)||150)*0.82)}g protein daily. Let's make sure you're actually hitting that.`
@@ -83,7 +84,7 @@ export function Onboarding({state,update}){const[step,setStep]=useState(0);const
         </div>
 
         <div style={{padding:"12px 14px",background:"var(--bg)",borderRadius:10,borderLeft:"3px solid var(--accent4)"}}>
-          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><span style={{fontSize:18}}>🏋️</span><span style={{fontWeight:600,fontSize:14}}>Trainer</span></div>
+          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><Icon name="trainer" size={20}/><span style={{fontWeight:600,fontSize:14}}>Trainer</span></div>
           <p style={{fontSize:13,color:"var(--dim)",lineHeight:1.5,fontStyle:"italic"}}>{
             hasConditions ? `I see ${p.conditions.filter(c=>c!=="None")[0]} — I'll factor that into everything I build for you. No exercises that work against your body. Tell me what equipment you have access to and I'll create your first program.`
             : goalStr?.includes("better sleep") ? `Better sleep is a goal — exercise timing matters more than people think. I'll build routines that help with that, not hurt it. Let's start with what you're currently doing.`
@@ -92,7 +93,7 @@ export function Onboarding({state,update}){const[step,setStep]=useState(0);const
         </div>
 
         <div style={{padding:"12px 14px",background:"var(--bg)",borderRadius:10,borderLeft:"3px solid var(--accent2)"}}>
-          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><span style={{fontSize:18}}>💜</span><span style={{fontWeight:600,fontSize:14}}>Therapist</span></div>
+          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}><Icon name="therapist" size={20}/><span style={{fontWeight:600,fontSize:14}}>Therapist</span></div>
           <p style={{fontSize:13,color:"var(--dim)",lineHeight:1.5,fontStyle:"italic"}}>{
             goalStr?.includes("reduce stress") ? `Stress reduction is on your list — that tells me a lot. I'll be watching your mood and sleep patterns. When you're ready to dig into what's driving the stress, I'm here. No rush.`
             : hasConditions ? `Managing ${p.conditions.filter(c=>c!=="None")[0]} isn't just physical — it's emotional too. I'll keep an eye on how your mood tracks with everything else. Whenever you want to talk, I'm here.`

@@ -83,7 +83,7 @@ Use today's date ${today()} if no date is found. Extract ALL distinct events (di
       <h3 style={S.h3}>🧠 AI Memory ({state.aiMemory.length} observations)</h3>
       <p style={{fontSize:14,color:"var(--dim)",marginTop:4}}>Patterns and insights learned from your health data:</p>
       <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:4}}>
-        {state.aiMemory.slice(-5).reverse().map((m,i)=><div key={i} style={{padding:"8px 10px",background:"rgba(122,155,181,0.06)",borderRadius:6,fontSize:14,color:"var(--text)",lineHeight:1.5}}><span style={{fontFamily:"var(--mono)",color:"var(--dim)",fontSize:16}}>{m.date}</span> {m.insight}</div>)}
+        {state.aiMemory.slice(-5).reverse().map((m,i)=><div key={i} style={{padding:"8px 10px",background:"rgba(179,148,167,0.06)",borderRadius:6,fontSize:14,color:"var(--text)",lineHeight:1.5}}><span style={{fontFamily:"var(--mono)",color:"var(--dim)",fontSize:16}}>{m.date}</span> {m.insight}</div>)}
       </div>
       {state.aiMemory.length>5&&<div style={{fontSize:16,color:"var(--dim)",marginTop:6}}>+ {state.aiMemory.length-5} more observations</div>}
     </div>}

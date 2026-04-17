@@ -4,10 +4,11 @@ import { today } from "../lib/state.js";
 import { buildPatientContext } from "../lib/patientContext.js";
 import { askMedicalAI } from "../lib/ai.js";
 import { RenderMD } from "./ui/RenderMD.jsx";
+import { Icon } from "./ui/Icon.jsx";
 
 const PROFESSIONAL_ROLES = {
   nutritionist: {
-    icon: "🍓", title: "Nutritionist", name: "Healleo Nutrition",
+    icon: "nutrition", title: "Nutritionist", name: "Healleo Nutrition",
     greeting: "Hey — I'm your nutritionist. I've already been through your labs, your logs, your conditions, all of it. I won't sugarcoat things (pun intended), but I'll make sure the plan actually fits your life. What are we working on?",
     starters: [
       "Build me a meal plan that actually hits my protein goals",
@@ -53,7 +54,7 @@ YOUR CLINICAL APPROACH:
     memoryPrefix: "🍓 Nutrition"
   },
   trainer: {
-    icon: "🏋️", title: "Personal Trainer", name: "Healleo Fitness",
+    icon: "trainer", title: "Personal Trainer", name: "Healleo Fitness",
     greeting: "What's up — I'm your trainer. I've looked at your logs, your conditions, what you've been doing (and not doing — no judgment). I'm not going to hand you a cookie-cutter program. Tell me what we're working toward and I'll build something you'll actually stick with.",
     starters: [
       "Build me a realistic workout routine for my goals",
@@ -100,7 +101,7 @@ YOUR CLINICAL APPROACH:
     memoryPrefix: "🏋️ Fitness"
   },
   therapist: {
-    icon: "💜", title: "Therapist", name: "Healleo Wellness",
+    icon: "therapist", title: "Therapist", name: "Healleo Wellness",
     greeting: "Hey. I'm glad you're here. I can see what you've been going through — your mood, your health, all of it. I'm not going to pretend I have a magic fix, but I'm a good listener and I've got some tools that might actually help. What's on your mind?",
     starters: [
       "I've been feeling really anxious and I don't know why",
@@ -172,7 +173,7 @@ export function ProfessionalChat({role, state, update}) {
   // Other professionals (for share menu)
   const otherPros = Object.entries(PROFESSIONAL_ROLES).filter(([k]) => k !== role);
   const proLabels = { nutritionist: "Nutritionist", trainer: "Trainer", therapist: "Therapist", doctor: "Dr. Healleo" };
-  const proIcons = { nutritionist: "🍓", trainer: "🏋️", therapist: "💜", doctor: "🩺" };
+  const proIcons = { nutritionist: "nutrition", trainer: "trainer", therapist: "therapist", doctor: "doctor" };
   // Map role keys for doctor
   const roleKey = role; // nutritionist, trainer, therapist
   const doctorRole = "doctor";
@@ -291,7 +292,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
   if (view === "plans") {
     return (<div className="fade-up">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={S.h2}>{config.icon} Create a Plan</h2>
+        <h2 style={S.h2}><Icon name={config.icon} size={20} style={{marginRight:6}}/> Create a Plan</h2>
         <button onClick={() => setView("chat")} style={{ ...S.smallBtn, background: "var(--muted)", color: "var(--text)" }}>← Chat</button>
       </div>
       <p style={{ fontSize: 14, color: "var(--dim)", marginTop: 6, lineHeight: 1.6 }}>
@@ -317,7 +318,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
   return (<div className="fade-up">
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <div>
-        <h2 style={S.h2}>{config.icon} {config.name}</h2>
+        <h2 style={S.h2}><Icon name={config.icon} size={20} style={{marginRight:6}}/> {config.name}</h2>
         <p style={{ fontSize: 14, color: "var(--dim)", marginTop: 2 }}>Personalized from {dataPoints} data points</p>
       </div>
       <div style={{ display: "flex", gap: 6 }}>
@@ -330,10 +331,10 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
     {incomingPlans.length > 0 && (
       <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
         {incomingPlans.slice(-3).map(plan => (
-          <div key={plan.id} style={{ padding: "10px 14px", background: "var(--bg)", borderRadius: 10, borderLeft: `3px solid ${proIcons[plan.from] === "🩺" ? "var(--accent3)" : proIcons[plan.from] === "🍓" ? "var(--accent)" : proIcons[plan.from] === "🏋️" ? "var(--accent4)" : "var(--accent2)"}`, opacity: plan.read ? 0.7 : 1 }}>
+          <div key={plan.id} style={{ padding: "10px 14px", background: "var(--bg)", borderRadius: 10, borderLeft: `3px solid ${proIcons[plan.from] === "doctor" ? "var(--accent3)" : proIcons[plan.from] === "nutrition" ? "var(--accent5)" : proIcons[plan.from] === "trainer" ? "var(--accent4)" : "var(--accent2)"}`, opacity: plan.read ? 0.7 : 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                <span style={{ fontSize: 14 }}>{proIcons[plan.from]}</span>
+                <Icon name={proIcons[plan.from]} size={16}/>
                 <span style={{ fontSize: 13, fontWeight: 600 }}>{proLabels[plan.from]}</span>
                 <span style={{ fontSize: 12, color: "var(--dim)" }}>shared a plan</span>
                 {!plan.read && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent4)", display: "inline-block" }} />}
@@ -349,7 +350,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
     <div style={{ ...S.card, marginTop: 12, padding: 0, minHeight: 400, maxHeight: "62vh", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
         {msgs.length === 0 && !loading && <div style={{ textAlign: "center", padding: "24px 10px" }}>
-          <div style={{ fontSize: 40, marginBottom: 10 }}>{config.icon}</div>
+          <div style={{ marginBottom: 10 }}><Icon name={config.icon} size={48}/></div>
           <p style={{ fontFamily: "var(--display)", fontSize: 16, fontWeight: 500 }}>{config.greeting}</p>
           <p style={{ fontSize: 14, color: "var(--dim)", margin: "8px 0 16px", lineHeight: 1.5 }}>Ask me anything, or tap <strong>📋 Plans</strong> to generate a personalized program.</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -394,7 +395,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
                     return <button onClick={() => !alreadyShared && sharePlan(i, "doctor")} disabled={alreadyShared}
                       style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 12px", background: "none", border: "none", cursor: alreadyShared ? "default" : "pointer", fontFamily: "var(--body)", fontSize: 13, color: alreadyShared ? "var(--dim)" : "var(--text)", opacity: alreadyShared ? 0.5 : 1 }}
                       onMouseEnter={e => { if (!alreadyShared) e.target.style.background = "var(--bg)"; }} onMouseLeave={e => e.target.style.background = "none"}>
-                      <span>🩺</span><span>Dr. Healleo</span>
+                      <Icon name="doctor" size={16}/><span>Dr. Healleo</span>
                       {alreadyShared && <span style={{ fontSize: 10, color: "var(--success)", marginLeft: "auto" }}>✓</span>}
                     </button>;
                   })()}
@@ -415,7 +416,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
         <button onClick={() => send()} disabled={loading || !input.trim()} style={{ ...S.primaryBtn, padding: "8px 16px", fontSize: 15, opacity: loading || !input.trim() ? 0.5 : 1 }}>Send</button>
       </div>
     </div>
-    <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(138,122,74,0.07)", borderRadius: 8 }}>
+    <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(107,90,36,0.07)", borderRadius: 8 }}>
       <p style={{ fontSize: 13, color: "var(--dim)", lineHeight: 1.5 }}>{config.disclaimer}</p>
     </div>
   </div>);
