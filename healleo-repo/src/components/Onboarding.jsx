@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { DEFAULT_PROFILE } from "../lib/state.js";
 import { GOALS, CONDITIONS } from "../lib/profile.js";
-import { S } from "../styles/theme.js";
+import { S, globalCSS } from "../styles/theme.js";
 import { Icon } from "./ui/Icon.jsx";
-const LOGO_PATH = "/assets/logo.svg";
+const LOGO_PATH = "/assets/logo.svg?v=2";
 
 export function Onboarding({state,update}){const[step,setStep]=useState(0);const[p,setP]=useState({...DEFAULT_PROFILE,...state.profile});const next=()=>setStep(s=>s+1);const finish=()=>update(s=>{s.profile=p;s.onboarded=true;});
   const name = p.name?.split(" ")[0] || "there";

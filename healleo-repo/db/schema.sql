@@ -91,7 +91,7 @@ RETURNS JSONB AS $$
 DECLARE
   result JSONB;
 BEGIN
-  IF auth.uid() != target_user_id THEN
+  IF auth.uid() IS NOT NULL AND auth.uid() != target_user_id THEN
     RAISE EXCEPTION 'Unauthorized: cannot access another user''s data';
   END IF;
 
@@ -109,7 +109,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION delete_user_data(target_user_id UUID)
 RETURNS VOID AS $$
 BEGIN
-  IF auth.uid() != target_user_id THEN
+  IF auth.uid() IS NOT NULL AND auth.uid() != target_user_id THEN
     RAISE EXCEPTION 'Unauthorized: cannot delete another user''s data';
   END IF;
 

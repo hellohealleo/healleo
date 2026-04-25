@@ -47,7 +47,7 @@ const ENC_ALGO = "AES-GCM";
 const KEY_LENGTH = 256;
 const PBKDF2_ITERATIONS = 100000;
 
-async function deriveEncryptionKey(password, salt) {
+async function deriveEncryptionKey(password, salt, extractable = true) {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     "raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]
@@ -56,9 +56,33 @@ async function deriveEncryptionKey(password, salt) {
     { name: "PBKDF2", salt: encoder.encode(salt), iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
     keyMaterial,
     { name: ENC_ALGO, length: KEY_LENGTH },
-    false,
+    extractable,
     ["encrypt", "decrypt"]
   );
+}
+
+async function wrapKeyForRecovery(encryptionKey, securityAnswer, salt) {
+  const recoveryKey = await deriveEncryptionKey(securityAnswer.trim().toLowerCase(), salt + "-recovery");
+  const rawKey = await crypto.subtle.exportKey("raw", encryptionKey);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const wrapped = await crypto.subtle.encrypt({ name: ENC_ALGO, iv }, recoveryKey, rawKey);
+  const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join("");
+  const wrappedHex = Array.from(new Uint8Array(wrapped)).map(b => b.toString(16).padStart(2, "0")).join("");
+  return ivHex + wrappedHex;
+}
+
+async function unwrapKeyFromRecovery(recoveryBlob, securityAnswer, salt) {
+  try {
+    const recoveryKey = await deriveEncryptionKey(securityAnswer.trim().toLowerCase(), salt + "-recovery");
+    const ivHex = recoveryBlob.slice(0, 24);
+    const wrappedHex = recoveryBlob.slice(24);
+    const iv = new Uint8Array(ivHex.match(/.{2}/g).map(h => parseInt(h, 16)));
+    const wrapped = new Uint8Array(wrappedHex.match(/.{2}/g).map(h => parseInt(h, 16)));
+    const rawKey = await crypto.subtle.decrypt({ name: ENC_ALGO, iv }, recoveryKey, wrapped);
+    return crypto.subtle.importKey("raw", rawKey, { name: ENC_ALGO, length: KEY_LENGTH }, true, ["encrypt", "decrypt"]);
+  } catch {
+    return null;
+  }
 }
 
 async function encryptData(plaintext, key) {
@@ -128,6 +152,12 @@ window.healleoAuth = {
     const salt = data.user.user_metadata.enc_salt;
     _encryptionKey = await deriveEncryptionKey(password, salt);
 
+    // Store recovery key blob (enables password reset without old password)
+    if (securityA) {
+      const recoveryBlob = await wrapKeyForRecovery(_encryptionKey, securityA, salt);
+      await sb.auth.updateUser({ data: { enc_key_recovery: recoveryBlob } });
+    }
+
     // Create initial user_data row
     await sb.from("user_data").insert({
       user_id: data.user.id,
@@ -172,6 +202,111 @@ window.healleoAuth = {
     if (sb) await sb.auth.signOut();
   },
 
+  // Send password reset email
+  async resetPassword(email) {
+    const sb = getSupabase();
+    if (!sb) return { error: "Supabase not configured" };
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    if (error) return { error: error.message };
+    return { success: true };
+  },
+
+  // Listen for auth state changes (PASSWORD_RECOVERY, etc.)
+  onAuthStateChange(callback) {
+    const sb = getSupabase();
+    if (!sb) return { data: { subscription: { unsubscribe() {} } } };
+    return sb.auth.onAuthStateChange(callback);
+  },
+
+  // Reset password using security answer to recover encryption key
+  async resetPasswordWithSecurityAnswer(securityAnswer, newPassword) {
+    const sb = getSupabase();
+    const user = await this.getUser();
+    if (!sb || !user) return { error: "Not authenticated" };
+
+    const salt = user.user_metadata.enc_salt;
+    const recoveryBlob = user.user_metadata.enc_key_recovery;
+
+    if (!recoveryBlob) {
+      return { error: "No recovery key found for this account. This account was created before recovery was enabled. Contact support." };
+    }
+
+    // Unwrap the encryption key using the security answer
+    const oldKey = await unwrapKeyFromRecovery(recoveryBlob, securityAnswer, salt);
+    if (!oldKey) {
+      return { error: "Incorrect security answer. Please try again." };
+    }
+
+    // Verify it can actually decrypt data
+    const { data: rows } = await sb.from("user_data")
+      .select("encrypted_data").eq("data_key", "health-state").single();
+    if (rows?.encrypted_data) {
+      const test = await decryptData(rows.encrypted_data, oldKey);
+      if (test === null) return { error: "Recovery key mismatch. Contact support." };
+    }
+
+    // Re-encrypt all data with new password key
+    const newSalt = crypto.randomUUID();
+    const newKey = await deriveEncryptionKey(newPassword, newSalt);
+    const { data: allData } = await sb.from("user_data").select("*").eq("user_id", user.id);
+    for (const row of (allData || [])) {
+      const plaintext = await decryptData(row.encrypted_data, oldKey);
+      if (plaintext !== null) {
+        const newCiphertext = await encryptData(plaintext, newKey);
+        await sb.from("user_data").update({ encrypted_data: newCiphertext }).eq("id", row.id);
+      }
+    }
+
+    // Store new recovery blob + update password + salt
+    const newRecoveryBlob = await wrapKeyForRecovery(newKey, securityAnswer, newSalt);
+    const { error } = await sb.auth.updateUser({
+      password: newPassword,
+      data: { enc_salt: newSalt, enc_key_recovery: newRecoveryBlob }
+    });
+    if (error) return { error: error.message };
+
+    _encryptionKey = newKey;
+    return { success: true };
+  },
+
+  // Get the security question for a user (for the reset flow UI)
+  async getSecurityQuestion() {
+    const user = await this.getUser();
+    return user?.user_metadata?.security_question || null;
+  },
+
+  // Check if account has recovery enabled
+  async hasRecoveryKey() {
+    const user = await this.getUser();
+    return !!user?.user_metadata?.enc_key_recovery;
+  },
+
+  // Create recovery key for existing accounts (one-time migration)
+  async createRecoveryKey(password, securityQ, securityA) {
+    const sb = getSupabase();
+    const user = await this.getUser();
+    if (!sb || !user) return { error: "Not authenticated" };
+
+    const salt = user.user_metadata.enc_salt;
+    if (!salt) return { error: "No encryption salt found" };
+
+    // Derive key from current password (or use the one already in memory)
+    const key = _encryptionKey || await deriveEncryptionKey(password, salt);
+    const recoveryBlob = await wrapKeyForRecovery(key, securityA, salt);
+
+    const { error } = await sb.auth.updateUser({
+      data: {
+        security_question: securityQ.trim(),
+        security_answer_hash: await hashAnswer(securityA),
+        enc_key_recovery: recoveryBlob,
+      }
+    });
+    if (error) return { error: error.message };
+    return { success: true };
+  },
+
   // Get current session
   async getSession() {
     const sb = getSupabase();
@@ -203,8 +338,8 @@ window.healleoAuth = {
     return true;
   },
 
-  // Change password (re-wraps encryption — same key, new password derivation)
-  async changePassword(oldPassword, newPassword) {
+  // Change password (re-encrypts data, refreshes recovery blob if security answer provided)
+  async changePassword(oldPassword, newPassword, securityAnswer) {
     const sb = getSupabase();
     const user = await this.getUser();
     if (!sb || !user) return { error: "Not authenticated" };
@@ -239,10 +374,17 @@ window.healleoAuth = {
       }
     }
 
-    // Update password and salt in Supabase Auth
+    // Refresh recovery blob if security answer provided, otherwise invalidate
+    const updateData = { enc_salt: newSalt };
+    if (securityAnswer) {
+      updateData.enc_key_recovery = await wrapKeyForRecovery(newKey, securityAnswer, newSalt);
+    } else {
+      updateData.enc_key_recovery = null;
+    }
+
     const { error } = await sb.auth.updateUser({
       password: newPassword,
-      data: { enc_salt: newSalt }
+      data: updateData
     });
     if (error) return { error: error.message };
 

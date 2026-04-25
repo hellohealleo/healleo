@@ -334,7 +334,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
           <div key={plan.id} style={{ padding: "10px 14px", background: "var(--bg)", borderRadius: 10, borderLeft: `3px solid ${proIcons[plan.from] === "doctor" ? "var(--accent3)" : proIcons[plan.from] === "nutrition" ? "var(--accent5)" : proIcons[plan.from] === "trainer" ? "var(--accent4)" : "var(--accent2)"}`, opacity: plan.read ? 0.7 : 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                <Icon name={proIcons[plan.from]} size={16}/>
+                <Icon name={proIcons[plan.from]} size={28}/>
                 <span style={{ fontSize: 13, fontWeight: 600 }}>{proLabels[plan.from]}</span>
                 <span style={{ fontSize: 12, color: "var(--dim)" }}>shared a plan</span>
                 {!plan.read && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent4)", display: "inline-block" }} />}
@@ -395,7 +395,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
                     return <button onClick={() => !alreadyShared && sharePlan(i, "doctor")} disabled={alreadyShared}
                       style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 12px", background: "none", border: "none", cursor: alreadyShared ? "default" : "pointer", fontFamily: "var(--body)", fontSize: 13, color: alreadyShared ? "var(--dim)" : "var(--text)", opacity: alreadyShared ? 0.5 : 1 }}
                       onMouseEnter={e => { if (!alreadyShared) e.target.style.background = "var(--bg)"; }} onMouseLeave={e => e.target.style.background = "none"}>
-                      <Icon name="doctor" size={16}/><span>Dr. Healleo</span>
+                      <Icon name="doctor" size={28}/><span>Dr. Healleo</span>
                       {alreadyShared && <span style={{ fontSize: 10, color: "var(--success)", marginLeft: "auto" }}>✓</span>}
                     </button>;
                   })()}

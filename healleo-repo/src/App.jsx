@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { globalCSS, S } from "./styles/theme.js";
-const LOGO_PATH = "/assets/logo.svg";
+const LOGO_PATH = "/assets/logo.svg?v=2";
 import { DEFAULT_PROFILE, DEFAULT_STATE } from "./lib/state.js";
 import { saveData } from "./lib/storage.js";
 import { HealthCompanion } from "./components/HealthCompanion.jsx";
@@ -23,27 +23,66 @@ export default function AuthGate() {
   const [securityQ, setSecurityQ] = useState("");
   const [securityA, setSecurityA] = useState("");
   const [migrateData, setMigrateData] = useState(null);
+  const [recoveryAnswer, setRecoveryAnswer] = useState("");
+  const [recoveryQuestion, setRecoveryQuestion] = useState("");
 
   useEffect(() => { document.documentElement.dataset.theme = localStorage.getItem("healleoTheme") || "light"; }, []);
 
+  // Load security question when entering password recovery
+  useEffect(() => {
+    if (authState === "newPassword" && !recoveryQuestion) {
+      window.healleoAuth.getSecurityQuestion().then(q => { if (q) setRecoveryQuestion(q); });
+    }
+  }, [authState]);
+
   // Check existing session on mount
   useEffect(() => {
-    (async () => {
-      const session = await window.healleoAuth.getSession();
-      if (session) {
-        const user = await window.healleoAuth.getUser();
-        if (user) {
-          setUserEmail(user.email);
-          if (!window.healleoAuth.hasEncryptionKey()) {
-            setAuthState("unlock");
+    // Check URL hash for recovery token FIRST, before any session logic
+    const hash = window.location.hash;
+    const isRecovery = hash.includes("type=recovery");
+
+    if (isRecovery) {
+      // Recovery link: let Supabase process the token, then show new-password screen
+      const waitForRecovery = async () => {
+        // Give Supabase time to exchange the recovery token
+        await new Promise(r => setTimeout(r, 1000));
+        try {
+          const user = await window.healleoAuth.getUser();
+          if (user) {
+            setUserEmail(user.email || "");
+            setAuthState("newPassword");
+            window.history.replaceState(null, "", window.location.pathname);
             return;
           }
-          setAuthState("app");
-          return;
+        } catch {}
+        setAuthState("login");
+      };
+      waitForRecovery();
+      return;
+    }
+
+    // Normal session check (no recovery)
+    const checkSession = async () => {
+      try {
+        const session = await window.healleoAuth.getSession();
+        if (session) {
+          const user = await window.healleoAuth.getUser();
+          if (user) {
+            setUserEmail(user.email);
+            if (!window.healleoAuth.hasEncryptionKey()) {
+              setAuthState("unlock");
+              return;
+            }
+            setAuthState("app");
+            return;
+          }
         }
+      } catch (e) {
+        console.error("Session check failed:", e);
       }
       setAuthState("login");
-    })();
+    };
+    checkSession();
   }, []);
 
   const calcStrength = (pw) => {
@@ -55,6 +94,8 @@ export default function AuthGate() {
     if (/[^A-Za-z0-9]/.test(pw)) s++;
     return s;
   };
+  const strengthLabels = ["", "Weak", "Fair", "Good", "Strong", "Excellent"];
+  const strengthColors = ["", "var(--danger)", "var(--accent4)", "var(--accent2)", "var(--accent3)", "var(--success)"];
 
   // ─── LOGIN ───
   const handleLogin = async () => {
@@ -62,23 +103,16 @@ export default function AuthGate() {
     const em = email.trim().toLowerCase();
     if (!em || !password) { setError("Please enter email and password"); setLoading(false); return; }
 
-    const result = await window.healleoAuth.login(em, password);
-    if (result.error) { setError(result.error); setLoading(false); return; }
-    setUserEmail(em);
-
-    if (window.healleoMigrate?.hasLocalData()) {
-      const existingData = await window.healleoData.load();
-      const isEmpty = !existingData || (!existingData.onboarded && (!existingData.logs || existingData.logs.length === 0));
-      if (isEmpty) {
-        setMigrateData(true);
-        setAuthState("migrate");
-        setLoading(false);
-        return;
-      }
+    try {
+      const result = await window.healleoAuth.login(em, password);
+      if (result.error) { setError(result.error); setLoading(false); return; }
+      setUserEmail(em);
+      setPassword(""); setEmail("");
+      setAuthState("app");
+    } catch (e) {
+      console.error("Login error:", e);
+      setError("Login failed. Please try again.");
     }
-
-    setPassword(""); setEmail("");
-    setAuthState("app");
     setLoading(false);
   };
 
@@ -108,10 +142,8 @@ export default function AuthGate() {
     setError(""); setLoading(true);
     if (!password) { setError("Please enter your password"); setLoading(false); return; }
     const ok = await window.healleoAuth.unlockWithPassword(password);
-    if (!ok) { setError("Incorrect password. Please try again."); setLoading(false); return; }
-    const testLoad = await window.healleoData.load();
-    if (testLoad === null) {
-      setError("Password doesn't match. If you recently changed your password, try your previous one.");
+    if (!ok) {
+      setError("Incorrect password. If you recently reset your password, use your new one.");
       setLoading(false);
       return;
     }
@@ -136,12 +168,31 @@ export default function AuthGate() {
 
   const handleSkipMigrate = () => { setAuthState("app"); };
 
+  // ─── SET NEW PASSWORD (after recovery link clicked) ───
+  const handleSetNewPassword = async () => {
+    setError(""); setLoading(true);
+    if (password.length < 8) { setError("Password must be at least 8 characters"); setLoading(false); return; }
+    if (password !== confirmPw) { setError("Passwords don't match"); setLoading(false); return; }
+    if (!recoveryAnswer.trim()) { setError("Please answer your security question to recover your data"); setLoading(false); return; }
+
+    const result = await window.healleoAuth.resetPasswordWithSecurityAnswer(recoveryAnswer, password);
+    if (result.error) { setError(result.error); setLoading(false); return; }
+
+    setSuccess("Password updated and health data recovered.");
+    setPassword(""); setConfirmPw(""); setRecoveryAnswer("");
+    setTimeout(() => { setAuthState("login"); setSuccess(""); setError(""); }, 3000);
+    setLoading(false);
+  };
+
   // ─── FORGOT PASSWORD ───
   const handleForgotPw = async () => {
-    setError(""); setSuccess("");
+    setError(""); setSuccess(""); setLoading(true);
     const em = email.trim().toLowerCase();
-    if (!em) { setError("Please enter your email address"); return; }
-    setSuccess("Password reset is done via email. Check your inbox for a reset link. If you haven't received one within a few minutes, check your spam folder or contact support.");
+    if (!em) { setError("Please enter your email address"); setLoading(false); return; }
+    const result = await window.healleoAuth.resetPassword(em);
+    if (result.error) { setError(result.error); setLoading(false); return; }
+    setSuccess("Reset email sent. Check your inbox (and spam folder) for a password reset link.");
+    setLoading(false);
   };
 
   // ─── LOGOUT ───
@@ -149,7 +200,7 @@ export default function AuthGate() {
     await window.healleoAuth.logout();
     setUserEmail("");
     setEmail(""); setPassword(""); setConfirmPw(""); setName(""); setError(""); setSuccess("");
-    setSecurityQ(""); setSecurityA("");
+    setSecurityQ(""); setSecurityA(""); setRecoveryAnswer(""); setRecoveryQuestion("");
     setAuthState("login");
   };
 
@@ -160,6 +211,76 @@ export default function AuthGate() {
         <style>{globalCSS}</style>
         <div style={S.spinner} />
         <p style={{ color: "var(--accent)", marginTop: 16, fontFamily: "var(--body)" }}>Checking session...</p>
+      </div>
+    );
+  }
+
+  // ─── SET NEW PASSWORD (recovery flow) ───
+  if (authState === "newPassword") {
+    return (
+      <div style={{ ...S.app, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <style>{globalCSS}</style>
+        <div style={{ background: "var(--card)", borderRadius: 20, padding: 36, maxWidth: 440, width: "100%", boxShadow: "var(--shadow-lg)" }}>
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <img src={LOGO_PATH} alt="Healleo" style={{ height: 80, objectFit: "contain", marginBottom: 8 }}/>
+            <h2 style={S.h2}>Set New Password</h2>
+            <p style={{ fontSize: 14, color: "var(--dim)", marginTop: 6, lineHeight: 1.5 }}>
+              {userEmail ? `Resetting password for ${userEmail}` : "Choose a new password for your account."}
+            </p>
+          </div>
+
+          {recoveryQuestion && (
+            <>
+              <div style={{ padding: "12px 14px", background: "var(--bg)", borderRadius: 10, marginBottom: 14 }}>
+                <p style={{ fontSize: 13, color: "var(--dim)", lineHeight: 1.5 }}>
+                  Answer your security question to recover your encrypted health data.
+                </p>
+              </div>
+              <label style={{ ...S.label, marginBottom: 4 }}>
+                Security Question
+                <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", marginTop: 4, padding: "10px 14px", background: "var(--bg)", borderRadius: 8 }}>
+                  {recoveryQuestion}
+                </div>
+              </label>
+              <label style={{ ...S.label, marginBottom: 12, marginTop: 8 }}>
+                Your Answer
+                <input value={recoveryAnswer} onChange={e => setRecoveryAnswer(e.target.value)} placeholder="Type your answer (case-insensitive)" style={S.input} autoFocus />
+              </label>
+            </>
+          )}
+
+          <label style={{ ...S.label, marginBottom: 12 }}>
+            New Password
+            <div style={{ position: "relative" }}>
+              <input type={showPw ? "text" : "password"} value={password} onChange={e => { setPassword(e.target.value); setStrength(calcStrength(e.target.value)); }} placeholder="Min. 8 characters" style={{ ...S.input, paddingRight: 40 }} autoComplete="new-password" autoFocus={!recoveryQuestion} />
+              <button onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 17, color: "var(--dim)" }}>{showPw ? "🙈" : "👁"}</button>
+            </div>
+          </label>
+          {password && (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ display: "flex", gap: 3, marginBottom: 4 }}>
+                {[1,2,3,4,5].map(i => (<div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= strength ? strengthColors[strength] : "var(--muted)" }} />))}
+              </div>
+              <div style={{ fontSize: 16, color: strengthColors[strength], fontFamily: "var(--mono)" }}>{strengthLabels[strength]}</div>
+            </div>
+          )}
+          <label style={{ ...S.label, marginBottom: 12 }}>
+            Confirm New Password
+            <input type={showPw ? "text" : "password"} value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="Repeat new password" style={{ ...S.input, borderColor: confirmPw && confirmPw !== password ? "var(--danger)" : "var(--muted)" }} autoComplete="new-password" onKeyDown={e => e.key === "Enter" && handleSetNewPassword()} />
+            {confirmPw && confirmPw !== password && <span style={{ fontSize: 16, color: "var(--danger)", marginTop: 2 }}>Passwords don't match</span>}
+          </label>
+          {error && <div style={{ padding: "8px 12px", background: "rgba(184,84,84,0.08)", border: "1px solid rgba(184,84,84,0.2)", borderRadius: 8, marginBottom: 12, fontSize: 14, color: "#8b3a3a" }}>{error}</div>}
+          {success && <div style={{ padding: "8px 12px", background: "rgba(107,90,36,0.08)", border: "1px solid rgba(107,90,36,0.18)", borderRadius: 8, marginBottom: 12, fontSize: 14, color: "var(--success)" }}>{success}</div>}
+          <button onClick={handleSetNewPassword} disabled={loading} style={{ ...S.primaryBtn, width: "100%", padding: "12px 18px", fontSize: 16, opacity: loading ? 0.6 : 1 }}>
+            {loading ? "Updating..." : "Set New Password"}
+          </button>
+
+          <div style={{ marginTop: 14, padding: "10px 14px", background: "var(--bg)", borderRadius: 10, textAlign: "center" }}>
+            <p style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.5 }}>
+              Your health data is encrypted and can only be recovered with your security answer. This keeps your data private even from our servers.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -240,8 +361,6 @@ export default function AuthGate() {
   // ─── LOGIN / SIGNUP / FORGOT PASSWORD SCREENS ───
   const isSignup = authState === "signup";
   const isForgotPw = authState === "forgotPw";
-  const strengthLabels = ["", "Weak", "Fair", "Good", "Strong", "Excellent"];
-  const strengthColors = ["", "var(--danger)", "var(--accent4)", "var(--accent2)", "var(--accent3)", "var(--success)"];
 
   const SECURITY_QUESTIONS = [
     "What was the name of your first pet?",

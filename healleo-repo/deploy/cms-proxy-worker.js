@@ -70,7 +70,7 @@ async function searchPlans(body, apikey) {
     throw new Error("Missing required fields: zip, income, household");
   }
 
-  const planYear = year || new Date().getFullYear();
+  const planYear = year || 2025;
 
   // Step 1: ZIP → county FIPS + state
   const countyData = await cmsGet(`/counties/by/zip/${zip}`, apikey);
@@ -78,7 +78,13 @@ async function searchPlans(body, apikey) {
   if (!counties?.length) throw new Error(`No counties found for ZIP ${zip}`);
   const county = counties[0];
   const fips = county.fips;
-  const state = county.state;
+  const stateCode = county.state;
+
+  // States with their own marketplace (not on healthcare.gov)
+  const STATE_EXCHANGES = ["CA","CO","CT","DC","ID","KY","MD","MA","MN","NV","NJ","NM","NY","PA","RI","VT","VA","WA"];
+  if (STATE_EXCHANGES.includes(stateCode)) {
+    throw new Error(`${stateCode} runs its own health insurance marketplace. Visit your state exchange directly (not healthcare.gov).`);
+  }
 
   // Step 2: Search plans
   const searchBody = {
@@ -86,16 +92,17 @@ async function searchPlans(body, apikey) {
       income: Number(income),
       people: household.map(p => ({
         age: Number(p.age),
-        gender: p.gender || "male",
+        gender: (p.gender || "Male"),
         uses_tobacco: p.uses_tobacco || false,
         aptc_eligible: true,
       })),
     },
     market: "Individual",
-    place: { countyfips: fips, state, zipcode: zip },
+    place: { countyfips: fips, state: stateCode, zipcode: zip },
     year: planYear,
   };
 
+  console.log("CMS plan search request:", JSON.stringify(searchBody));
   const planData = await cmsPost("/plans/search", searchBody, apikey);
   const plans = planData.plans || [];
 
@@ -130,7 +137,7 @@ async function checkDrugs(body, apikey) {
     throw new Error("Missing required fields: plan_ids, drug_names");
   }
 
-  const planYear = year || new Date().getFullYear();
+  const planYear = year || 2025;
 
   // Resolve drug names to RxCUIs
   const rxcuis = [];
@@ -170,7 +177,7 @@ async function checkProviders(body, apikey) {
     throw new Error("Missing required fields: plan_ids, npis");
   }
 
-  const planYear = year || new Date().getFullYear();
+  const planYear = year || 2025;
   const batchPlanIds = plan_ids.slice(0, 10);
   const batchNpis = npis.slice(0, 10);
 
@@ -189,7 +196,7 @@ async function checkProviders(body, apikey) {
 async function getPlanDetails(body, apikey) {
   const { plan_id, year } = body;
   if (!plan_id) throw new Error("Missing required field: plan_id");
-  const planYear = year || new Date().getFullYear();
+  const planYear = year || 2025;
   return await cmsGet(`/plans/${plan_id}?year=${planYear}`, apikey);
 }
 

@@ -121,7 +121,7 @@ export function LabResults({state,update}) {
           </div>;
         })}
       </div>
-      <button onClick={()=>analyzeResults(viewing)} disabled={analyzing} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:analyzing?0.6:1}}>{analyzing?"🧠 Analyzing with your full history...":<><Icon name="doctor" size={16}/> AI Analysis of These Results</>}</button>
+      <button onClick={()=>analyzeResults(viewing)} disabled={analyzing} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:analyzing?0.6:1}}>{analyzing?"🧠 Analyzing with your full history...":<><Icon name="doctor" size={28}/> AI Analysis of These Results</>}</button>
       {aiAnalysis&&<div style={{...S.card,marginTop:12}}><RenderMD text={aiAnalysis}/></div>}
     </div>;
   }

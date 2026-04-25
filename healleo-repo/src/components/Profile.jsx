@@ -8,16 +8,18 @@ export function Profile({state,update,onLogout,userEmail}){
   const [changingPw,setChangingPw]=useState(false);
   const [oldPw,setOldPw]=useState("");
   const [newPw,setNewPw]=useState("");
+  const [secAnswer,setSecAnswer]=useState("");
   const [pwMsg,setPwMsg]=useState("");
   const [deleting,setDeleting]=useState(false);
+  const [secQ,setSecQ]=useState(null);
 
   const changePassword = async () => {
     if (newPw.length < 8) { setPwMsg("Password must be at least 8 characters"); return; }
     setPwMsg("Changing password and re-encrypting data...");
-    const result = await window.healleoAuth.changePassword(oldPw, newPw);
+    const result = await window.healleoAuth.changePassword(oldPw, newPw, secAnswer || null);
     if (result.error) { setPwMsg(result.error); return; }
     setPwMsg("✓ Password changed and data re-encrypted");
-    setOldPw(""); setNewPw(""); setTimeout(() => { setChangingPw(false); setPwMsg(""); }, 2000);
+    setOldPw(""); setNewPw(""); setSecAnswer(""); setTimeout(() => { setChangingPw(false); setPwMsg(""); }, 2000);
   };
 
   const deleteAccount = async () => {
@@ -39,6 +41,7 @@ export function Profile({state,update,onLogout,userEmail}){
       {changingPw && <div style={{marginTop:12,padding:12,background:"var(--bg)",borderRadius:8}}>
         <label style={S.label}>Current Password<input type="password" value={oldPw} onChange={e=>setOldPw(e.target.value)} style={S.input}/></label>
         <label style={{...S.label,marginTop:8}}>New Password (8+ chars)<input type="password" value={newPw} onChange={e=>setNewPw(e.target.value)} style={S.input}/></label>
+        <label style={{...S.label,marginTop:8}}>Security Answer <span style={{fontWeight:400,color:"var(--dim)"}}>(to keep password recovery working)</span><input value={secAnswer} onChange={e=>setSecAnswer(e.target.value)} placeholder="Same answer you used at signup" style={S.input}/></label>
         {pwMsg && <div style={{fontSize:14,marginTop:6,color:pwMsg.startsWith("✓")?"var(--success)":"var(--danger)"}}>{pwMsg}</div>}
         <button onClick={changePassword} style={{...S.primaryBtn,marginTop:8,fontSize:15}}>Update Password</button>
       </div>}

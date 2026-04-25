@@ -20,10 +20,10 @@ async function cmsCall(path, body) {
 export async function searchPlans({ zip, income, householdSize, profile }) {
   const household = [];
   const primaryAge = parseInt(profile.age) || 30;
-  const primaryGender = profile.sex === "female" ? "female" : "male";
+  const primaryGender = profile.sex === "female" ? "Female" : "Male";
   household.push({ age: primaryAge, gender: primaryGender, uses_tobacco: false });
   for (let i = 1; i < (householdSize || 1); i++) {
-    household.push({ age: 30, gender: "male", uses_tobacco: false });
+    household.push({ age: 30, gender: "Male", uses_tobacco: false });
   }
   return cmsCall("/plans/search", { zip, income: Number(income), household });
 }
