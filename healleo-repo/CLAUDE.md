@@ -315,7 +315,49 @@ Current architecture is HIPAA-ready but not HIPAA-compliant:
 
 Phase 2 path: Add Express API server, route AI through AWS Bedrock (BAA included, same pricing), upgrade Supabase or self-host for storage BAA.
 
+## Data Entry Philosophy
 
+Every form field is a failure of design. The goal is to make logging feel like confirming what Healleo already knows, not creating data from scratch. When the user opens the app, 80% of their day should already be captured.
+
+### The Effort Hierarchy (build in this order)
+
+**Tier 1 Ñ Zero effort (automatic, no user action)**
+- Apple Health / Google Fit background sync: steps, sleep, heart rate, workouts, calories
+- Wearable APIs (Oura, Whoop, Garmin, Fitbit): HRV, sleep stages, readiness, body temp
+- Pharmacy integration (SureScripts): pull actual prescription fill history with consent
+- Email lab parsing: forward Quest/LabCorp results email ? auto-extract values
+
+**Tier 2 Ñ One tap (confirm, don't create)**
+- Morning check-in notification: "You slept 7.2 hrs. How are you feeling?" ? 5 mood faces, one tap. Sleep + mood logged in 3 seconds.
+- Evening wrap-up: "You walked 8,400 steps. Did you drink enough water?" ? three buttons: Not enough / About right / Plenty. Maps to rough oz estimate.
+- Medication reminders that ARE the log: "Time for Metformin 500mg" ? tap "Taken" or "Skipped." Reminder = adherence tracking. No separate logging step.
+- Meal photo logging: snap plate photo ? Claude vision estimates food + macros ? user confirms or adjusts with one tap.
+- Predictive meals: after 2-3 weeks, suggest repeat meals. "Coffee and toast again? ? Yes / Something different." Most people eat the same 10-15 meals.
+
+**Tier 3 Ñ Conversational (one input, multiple data points)**
+- Single text/voice input replaces 6 form fields: "Had a turkey sandwich for lunch, drank two bottles of water, feeling anxious today" ? logs meal + water + mood in one parse.
+- Voice input via mic button: 5 seconds of speaking captures 4+ data points.
+- The NL logging feature already exists Ñ it should be the PRIMARY entry method, not an alternative buried in the UI.
+
+**Tier 4 Ñ Ambient intelligence (infer, don't ask)**
+- Gym detection: Apple Health shows elevated HR + workout ? pre-populate "45 min strength training. Confirm?"
+- Sleep disruption: bed at 2am instead of usual 11pm ? therapist notes it without user logging.
+- Calendar-aware prompts: doctor visit detected ? "Anything to note? New meds, lab orders, diagnosis changes?"
+- Habit recognition: learn daily patterns, pre-fill routine entries after 2-3 weeks.
+
+**Tier 5 Ñ Periodic smart prompts (right question, right time)**
+- Post-doctor-visit prompt (from calendar): conversational capture of visit notes
+- Monthly health check-in: 60-second guided review. "Weight still about 152? Any new symptoms? Med changes?"
+- Lab reminder: "It's been 90 days since your last labs. Upload when you have them."
+
+### Design Rules for Data Entry
+- Never show an empty form. Pre-fill with defaults, history, or device data.
+- One input field beats five. Conversational > structured forms.
+- Confirmation beats creation. "Is this right?" beats "Enter your data."
+- Time the ask. Morning = mood + sleep. Evening = water + meals. Post-workout = exercise.
+- Celebrate logging. Small acknowledgments ("Logged! Your team sees this.") reinforce the habit.
+- Fail gracefully. If they skip a day, don't guilt them. Show "Welcome back" not "You missed 3 days."
+- Never require precision. "About 4 glasses" is better than no entry because they couldn't remember if it was 3 or 5.
 ## Pending / Backlog
 
 1. **Health Insurance Finder** â€” Personalized plan recommendations using CMS Marketplace API
@@ -335,3 +377,4 @@ Phase 2 path: Add Express API server, route AI through AWS Bedrock (BAA included
 7. AI-scheduled insights (server-side AI replacing rule-based engine)
 8. Medication autocomplete expansion via NLM RxTerms API through proxy
 9. Backend Phase 2 â€” Express API server for AWS Bedrock (HIPAA BAA)
+
