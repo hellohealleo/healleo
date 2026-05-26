@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a8494" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10" fill="#9a8494" fill-opacity="0.12" stroke="#9a8494"/>
-  <text x="12" y="16" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#9a8494" stroke="none">Sl</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/><path d="M17 6l2.5 0"/><path d="M16.5 3l0 2.5"/></svg>

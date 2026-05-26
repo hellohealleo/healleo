@@ -413,6 +413,20 @@ async function hashAnswer(answer) {
 // ═══════════════════════════════════════════════════════
 
 window.healleoData = {
+  // Check if encrypted data exists (without trying to decrypt)
+  async hasData() {
+    const sb = getSupabase();
+    if (!sb) return false;
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return false;
+    const { data } = await sb.from("user_data")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("data_key", "health-state")
+      .single();
+    return !!data;
+  },
+
   // Load health state
   async load() {
     const sb = getSupabase();

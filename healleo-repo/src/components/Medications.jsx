@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { DRUG_DATABASE } from "../lib/drugs.js";
 import { S } from "../styles/theme.js";
+import { Icon } from "./ui/Icon.jsx";
 
 export function Medications({state, update}) {
   const [input, setInput] = useState("");
@@ -135,7 +136,7 @@ export function Medications({state, update}) {
 
   return (
     <div className="fade-up">
-      <h2 style={S.h2}>💊 Medications</h2>
+      <h2 style={S.h2}>Medications</h2>
       <p style={{ fontSize: 14, color: "var(--dim)", marginTop: 2 }}>
         {activeMeds.length} active medication{activeMeds.length !== 1 ? "s" : ""}
         {discontinuedMeds.length > 0 && ` · ${discontinuedMeds.length} discontinued`}
@@ -208,7 +209,7 @@ export function Medications({state, update}) {
                     {med.startDate && <div style={{ fontSize: 12, color: "var(--dim)", marginTop: 4 }}>Started: {med.startDate}</div>}
                   </div>
                   <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                    <button onClick={() => setEditing(editing === med.id ? null : med.id)} style={{ ...S.smallBtn, background: "var(--muted)", color: "var(--text)", fontSize: 12, padding: "4px 8px" }}>✏️</button>
+                    <button onClick={() => setEditing(editing === med.id ? null : med.id)} style={{ ...S.smallBtn, background: "var(--muted)", color: "var(--text)", fontSize: 12, padding: "4px 8px" }}><Icon name="edit" size={12}/></button>
                     <button onClick={() => discontinueMed(med.id)} style={{ ...S.smallBtn, background: "var(--muted)", color: "var(--accent4)", fontSize: 12, padding: "4px 8px" }}>Stop</button>
                   </div>
                 </div>
@@ -273,7 +274,7 @@ export function Medications({state, update}) {
       {/* How meds are used */}
       <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(107,90,36,0.07)", borderRadius: 8 }}>
         <p style={{ fontSize: 13, color: "var(--dim)", lineHeight: 1.6 }}>
-          Your medications are shared with your entire Healleo team. Dr. Healleo checks drug interactions and side effects. Your nutritionist accounts for nutrient depletion (e.g. metformin + B12). Your trainer adjusts for meds that affect heart rate or cause fatigue. Your therapist considers mood-altering side effects.
+          Your medications are shared with your entire Healleo team. Dr. Healleo checks drug interactions and side effects. Your dietitian accounts for nutrient depletion (e.g. metformin + B12). Your trainer adjusts for meds that affect heart rate or cause fatigue. Your therapist considers mood-altering side effects.
         </p>
       </div>
     </div>

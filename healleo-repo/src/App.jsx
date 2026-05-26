@@ -376,7 +376,7 @@ export default function AuthGate() {
       <style>{globalCSS}</style>
       <div style={{ background: "var(--card)", borderRadius: 20, padding: 36, maxWidth: 440, width: "100%", boxShadow: "var(--shadow-lg)" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <img src={LOGO_PATH} alt="Healleo" style={{ height: 160, objectFit: "contain", marginBottom: 8 }}/>
+          <img src={LOGO_PATH} alt="Healleo" style={{ height: 60, objectFit: "contain", marginBottom: 8 }}/>
           <p style={{ fontSize: 15, color: "var(--dim)", marginTop: 4 }}>
             {isForgotPw ? "Reset your password" : isSignup ? "Create your account" : "Healthcare Optimized by You"}
           </p>

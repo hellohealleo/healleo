@@ -33,12 +33,27 @@ export function HealthCompanion({ onLogout, userEmail }) {
 
   useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem("healleoTheme",theme);},[theme]);
 
-  useEffect(()=>{loadData().then(d=>{if(d)setState(s=>({...DEFAULT_STATE,...d,profile:{...DEFAULT_PROFILE,...d?.profile},labResults:d.labResults||[],healthTimeline:d.healthTimeline||[],aiMemory:d.aiMemory||[],savedDoctors:d.savedDoctors||[],medications:d.medications||[],sharedPlans:d.sharedPlans||[],dismissedCards:d.dismissedCards||[]}));setLoaded(true);});},[]);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [decryptError, setDecryptError] = useState(false);
 
-  // Save data — debounced to avoid excessive network calls
+  useEffect(()=>{loadData().then(d=>{
+    if(d) {
+      setState(s=>({...DEFAULT_STATE,...d,profile:{...DEFAULT_PROFILE,...d?.profile},labResults:d.labResults||[],healthTimeline:d.healthTimeline||[],aiMemory:d.aiMemory||[],savedDoctors:d.savedDoctors||[],medications:d.medications||[],sharedPlans:d.sharedPlans||[],dismissedCards:d.dismissedCards||[]}));
+      setDataLoaded(true);
+    } else {
+      // Check if data exists but can't be decrypted
+      window.healleoData?.hasData?.().then(has => {
+        if (has) setDecryptError(true);
+        else setDataLoaded(true);
+      }).catch(() => setDataLoaded(true));
+    }
+    setLoaded(true);
+  });},[]);
+
+  // Save data — only if we successfully loaded (don't overwrite encrypted data we can't read)
   const saveTimer = useRef(null);
   useEffect(()=>{
-    if(!loaded) return;
+    if(!loaded || !dataLoaded) return;
     if(saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => saveData(state), 2000);
     return () => { if(saveTimer.current) clearTimeout(saveTimer.current); };
@@ -52,14 +67,51 @@ export function HealthCompanion({ onLogout, userEmail }) {
   const weekDays=weekLogs.map(l=>["Su","Mo","Tu","We","Th","Fr","Sa"][new Date(l.date+"T12:00:00").getDay()]);
   const switchTab=t=>{setAnimIn(false);setTimeout(()=>{setTab(t);setAnimIn(true);},120);};
 
-  if(!loaded)return <div style={S.loading}><div style={S.spinner}/><p style={{color:"#8a9a7b",marginTop:16,fontFamily:"'DM Sans'"}}>Loading...</p></div>;
+  const [recoveryPw, setRecoveryPw] = useState("");
+  const [recoveryMsg, setRecoveryMsg] = useState("");
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+
+  const tryRecoverData = async () => {
+    if (!recoveryPw) return;
+    setRecoveryLoading(true); setRecoveryMsg("");
+    const ok = await window.healleoAuth.unlockWithPassword(recoveryPw);
+    if (!ok) { setRecoveryMsg("Could not derive key"); setRecoveryLoading(false); return; }
+    const d = await loadData();
+    if (d) {
+      setState(s => ({...DEFAULT_STATE,...d,profile:{...DEFAULT_PROFILE,...d?.profile},labResults:d.labResults||[],healthTimeline:d.healthTimeline||[],aiMemory:d.aiMemory||[],savedDoctors:d.savedDoctors||[],medications:d.medications||[],sharedPlans:d.sharedPlans||[],dismissedCards:d.dismissedCards||[]}));
+      setDataLoaded(true); setDecryptError(false); setRecoveryPw("");
+    } else {
+      setRecoveryMsg("That password didn't work. Try another previous password.");
+    }
+    setRecoveryLoading(false);
+  };
+
+  const startFresh = () => { setDecryptError(false); setDataLoaded(true); };
+
+  if(!loaded)return <div style={S.loading}><div style={S.spinner}/><p style={{color:"#8a9a7b",marginTop:16,fontFamily:"var(--body)"}}>Loading...</p></div>;
+
+  if(decryptError) return <div style={{...S.app,display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><style>{globalCSS}</style><div style={{background:"var(--card)",borderRadius:20,padding:36,maxWidth:440,width:"100%",boxShadow:"var(--shadow-lg)"}}>
+    <div style={{textAlign:"center",marginBottom:20}}>
+      <div style={{fontSize:40,marginBottom:10}}><Icon name="settings" size={36}/></div>
+      <h2 style={S.h2}>Data Recovery Needed</h2>
+      <p style={{fontSize:14,color:"var(--dim)",marginTop:8,lineHeight:1.6}}>Your health data is encrypted with a previous password. Enter that password to recover your data.</p>
+    </div>
+    <label style={{...S.label,marginBottom:12}}>Previous Password<input type="password" value={recoveryPw} onChange={e=>setRecoveryPw(e.target.value)} placeholder="The password you used before resetting" style={S.input} onKeyDown={e=>e.key==="Enter"&&tryRecoverData()} autoFocus/></label>
+    {recoveryMsg&&<div style={{padding:"8px 12px",background:"rgba(184,84,84,0.08)",borderRadius:8,marginBottom:12,fontSize:14,color:"#8b3a3a"}}>{recoveryMsg}</div>}
+    <button onClick={tryRecoverData} disabled={recoveryLoading||!recoveryPw} style={{...S.primaryBtn,width:"100%",padding:"12px 18px",fontSize:16,opacity:recoveryLoading?0.6:1,marginBottom:10}}>{recoveryLoading?"Trying...":"Recover My Data"}</button>
+    <button onClick={startFresh} style={{width:"100%",padding:"8px",background:"none",border:"none",color:"var(--dim)",cursor:"pointer",fontSize:13,fontFamily:"var(--body)"}}>I don't remember — start fresh</button>
+    <div style={{marginTop:14,padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
+      <p style={{fontSize:12,color:"var(--dim)",lineHeight:1.5}}>Your encrypted data is safe in the cloud. If you remember your old password later, you can recover it by logging out and logging back in.</p>
+    </div>
+  </div></div>;
+
   if(!state.onboarded)return <Onboarding state={state} update={update}/>;
 
   const insights=generateInsights(state.profile,todayLog,weekLogs);
   const weight=parseFloat(state.profile.weight)||150;
   const waterGoal=Math.round(weight*0.5);
   const streak=computeStreak(state.logs);
-  const allTabs=[["dashboard","📊 Home"],["ask",<><Icon name="doctor" size={28}/> Doctor</>],["nutritionist",<><Icon name="nutrition" size={28}/> Nutrition</>],["trainer",<><Icon name="trainer" size={28}/> Trainer</>],["therapist",<><Icon name="therapist" size={28}/> Therapist</>],["meds","💊 Meds"],["labs","🧪 Labs"],["symptoms","🔍 Symptoms"],["summary","📋 Summary"],["timeline","📜 Timeline"],["doctors","👨‍⚕️ Doctors"],["insurance","🏥 Insurance"],["log","✏️ Log"],["supplements","💊 Suppl."]];
+  const allTabs=[["dashboard",<><Icon name="home" size={16}/> Home</>],["ask",<><Icon name="doctor" size={16}/> Doctor</>],["nutritionist",<><Icon name="nutrition" size={16}/> Nutrition</>],["trainer",<><Icon name="trainer" size={16}/> Trainer</>],["therapist",<><Icon name="therapist" size={16}/> Therapist</>],["meds",<><Icon name="meds" size={16}/> Meds</>],["labs",<><Icon name="labs" size={16}/> Labs</>],["symptoms",<><Icon name="search" size={16}/> Symptoms</>],["summary",<><Icon name="summary" size={16}/> Summary</>],["timeline",<><Icon name="timeline" size={16}/> Timeline</>],["doctors",<><Icon name="doctors" size={16}/> Doctors</>],["insurance",<><Icon name="settings" size={16}/> Insurance</>],["log",<><Icon name="edit" size={16}/> Log</>],["supplements",<><Icon name="meds" size={16}/> Suppl.</>]];
   const TABS = state.profile.hasEmployerInsurance ? allTabs.filter(([k]) => k !== "insurance") : allTabs;
 
   return(
@@ -67,10 +119,10 @@ export function HealthCompanion({ onLogout, userEmail }) {
       <header style={S.header}>
         <div style={{flex:"0 1 auto",minWidth:0}}><img src={LOGO_PATH} alt="Healleo" style={{height:48,objectFit:"contain",display:"block"}}/></div>
         <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-          {state.aiMemory?.length>0&&<div style={{fontSize:16,color:"var(--accent3)",fontFamily:"var(--mono)"}}>🧠 {state.aiMemory.length}</div>}
-          {streak>0&&<div style={S.streakBadge}>🔥 {streak}d</div>}
-          <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Light mode":"Dark mode"} style={{...S.iconBtn,background:"var(--muted)",color:"var(--text)"}}>{theme==="dark"?"☀":"☾"}</button>
-          <button onClick={()=>switchTab("profile")} style={{...S.iconBtn,background:tab==="profile"?"var(--accent)":"var(--muted)",color:tab==="profile"?"#fff":"var(--text)"}}>⚙</button>
+          {state.aiMemory?.length>0&&<div style={{fontSize:16,color:"var(--accent3)",fontFamily:"var(--mono)"}}><Icon name="memory" size={16}/> {state.aiMemory.length}</div>}
+          {streak>0&&<div style={S.streakBadge}><Icon name="fire" size={14}/> {streak}d</div>}
+          <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Light mode":"Dark mode"} style={{...S.iconBtn,background:"var(--muted)",color:"var(--text)"}}><Icon name={theme==="dark"?"sun":"moon"} size={16}/></button>
+          <button onClick={()=>switchTab("profile")} style={{...S.iconBtn,background:tab==="profile"?"var(--accent)":"var(--muted)",color:tab==="profile"?"#fff":"var(--text)"}}><Icon name="settings" size={16}/></button>
         </div>
       </header>
       <nav style={S.nav}>{TABS.map(([k,l])=><button key={k} onClick={()=>switchTab(k)} style={{...S.tab,...(tab===k?S.tabActive:{})}}>{l}</button>)}</nav>

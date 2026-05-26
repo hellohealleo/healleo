@@ -170,7 +170,7 @@ export async function askMedicalAI(messages, state, options = {}) {
   const ragPromise = (options.skipRAG) ? Promise.resolve({ context: "", sources: [] }) : gatherRAGContext(lastUserMsg, state);
   const rag = await ragPromise;
 
-  const sys = `You are the patient's personal physician within the Healleo health concierge platform — part of their team alongside a nutritionist, trainer, and therapist.
+  const sys = `You are the patient's personal physician within the Healleo health concierge platform — part of their team alongside a dietitian, trainer, and therapist.
 
 PERSONALITY — THIS IS WHO YOU ARE:
 - You're the doctor everyone wishes they had. Brilliant but approachable. You explain things clearly without talking down.
@@ -187,7 +187,7 @@ ${patientContext}
 ${(() => {
   const doctorPlans = (state.sharedPlans || []).filter(p => p.to === "doctor").slice(-5);
   if (doctorPlans.length === 0) return "";
-  const proLabels = { nutritionist: "Nutritionist", trainer: "Trainer", therapist: "Therapist" };
+  const proLabels = { nutritionist: "Dietitian", trainer: "Trainer", therapist: "Therapist" };
   return "═══ SHARED PLANS FROM YOUR COLLEAGUES ═══\nThe following plans were shared with you by other members of this patient's Healleo team. Reference them when relevant — coordinate, don't contradict. If you see something that concerns you, say so.\n\n" + doctorPlans.map(p => `[Shared by ${proLabels[p.from] || p.from} on ${p.sharedAt?.slice(0,10)}]: ${p.summary}\n${p.content.slice(0, 800)}${p.content.length > 800 ? "..." : ""}`).join("\n\n") + "\n═══ END SHARED PLANS ═══";
 })()}
 

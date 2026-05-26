@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { S } from "../styles/theme.js";
 import { DOCTOR_SPECIALTIES } from "../lib/symptoms.js";
+import { Icon } from "./ui/Icon.jsx";
 
 export function DoctorFinder({state,update}) {
   const profile = state.profile;
@@ -202,13 +203,13 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
           </div>
 
           <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:10}}>
-            {doc.address && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>📍</span><span>{doc.address}</span></div>}
-            {doc.phone && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>📞</span><a href={`tel:${doc.phone.replace(/\D/g,"")}`} style={{color:"var(--accent)"}}>{doc.phone}</a></div>}
-            {doc.fax && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>📠</span><span>{doc.fax}</span></div>}
-            {doc.email && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>✉️</span><a href={`mailto:${doc.email}`} style={{color:"var(--accent)"}}>{doc.email}</a></div>}
+            {doc.address && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}><Icon name="location" size={14}/></span><span>{doc.address}</span></div>}
+            {doc.phone && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}><Icon name="phone" size={14}/></span><a href={`tel:${doc.phone.replace(/\D/g,"")}`} style={{color:"var(--accent)"}}>{doc.phone}</a></div>}
+            {doc.fax && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}><Icon name="phone" size={14}/></span><span>{doc.fax}</span></div>}
+            {doc.email && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}><Icon name="location" size={14}/></span><a href={`mailto:${doc.email}`} style={{color:"var(--accent)"}}>{doc.email}</a></div>}
             {doc.npi && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>🆔</span><span style={{fontFamily:"var(--mono)"}}>NPI: {doc.npi}</span></div>}
-            {doc.portal_url && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>🌐</span><span>Patient Portal: {doc.portal_url}</span></div>}
-            {doc.distance_miles > 0 && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}>🚗</span><span>{doc.distance_miles} miles away</span></div>}
+            {doc.portal_url && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}><Icon name="share" size={14}/></span><span>Patient Portal: {doc.portal_url}</span></div>}
+            {doc.distance_miles > 0 && <div style={{display:"flex",gap:10,fontSize:16}}><span style={{color:"var(--dim)",flexShrink:0}}><Icon name="location" size={14}/></span><span>{doc.distance_miles} miles away</span></div>}
           </div>
 
           {(doc.education || doc.hospital_affiliation || doc.years_experience) && <div style={{marginTop:16,padding:12,background:"var(--bg)",borderRadius:8}}>
@@ -224,9 +225,9 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
           {doc.source && <div style={{marginTop:8,fontSize:16,color:"var(--dim)",fontFamily:"var(--mono)"}}>Source: {doc.source === "mychart" ? "MyChart Import" : doc.source === "manual" ? "Manual Entry" : "Search"}</div>}
 
           <div style={{display:"flex",gap:8,marginTop:16}}>
-            {!saved && <button onClick={()=>{saveDoctor(doc);setSelectedDoc({...doc});}} style={{...S.primaryBtn,flex:1,fontSize:15}}>💾 Save to My Doctors</button>}
+            {!saved && <button onClick={()=>{saveDoctor(doc);setSelectedDoc({...doc});}} style={{...S.primaryBtn,flex:1,fontSize:15}}><Icon name="save" size={14}/> Save to My Doctors</button>}
             {saved && <div style={{...S.primaryBtn,flex:1,fontSize:15,opacity:0.6,textAlign:"center",cursor:"default"}}>✓ Saved</div>}
-            {doc.phone && <a href={`tel:${doc.phone.replace(/\D/g,"")}`} style={{...S.secondaryBtn,textDecoration:"none",textAlign:"center",flex:1,fontSize:15}}>📞 Call</a>}
+            {doc.phone && <a href={`tel:${doc.phone.replace(/\D/g,"")}`} style={{...S.secondaryBtn,textDecoration:"none",textAlign:"center",flex:1,fontSize:15}}><Icon name="phone" size={14}/> Call</a>}
           </div>
         </div>
       </div>
@@ -238,7 +239,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
     return (
       <div className="fade-up">
         <button onClick={() => setView("search")} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← New Search</button>
-        <h2 style={S.h2}>🔍 {results.length} Doctor{results.length !== 1 ? "s" : ""} Found</h2>
+        <h2 style={S.h2}><Icon name="search" size={16}/> {results.length} Doctor{results.length !== 1 ? "s" : ""} Found</h2>
         <div style={{fontSize:14,color:"var(--dim)",marginTop:2}}>{specialty || "All specialties"} · {location || "All locations"} · Source: CMS NPI Registry</div>
 
         {results.length === 0 && <div style={{...S.card,marginTop:16,textAlign:"center",padding:30}}><div style={{fontSize:36,marginBottom:8}}>🔍</div><p style={{fontSize:16,color:"var(--dim)"}}>No providers found. Try a broader search — use just the state abbreviation (e.g. "WA") or a wider specialty term. ZIP codes work best for local results.</p></div>}
@@ -277,7 +278,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
     return (
       <div className="fade-up">
         <button onClick={() => setView("main")} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← Back</button>
-        <h2 style={S.h2}>🔍 Find a Doctor</h2>
+        <h2 style={S.h2}><Icon name="doctors" size={18}/> Find a Doctor</h2>
 
         <div style={{...S.card,marginTop:14,padding:18}}>
           <h3 style={S.h3}>Specialty</h3>
@@ -290,20 +291,20 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
         </div>
 
         <div style={{...S.card,marginTop:10,padding:18}}>
-          <h3 style={S.h3}>📍 Location</h3>
+          <h3 style={S.h3}><Icon name="location" size={14}/> Location</h3>
           <input value={location} onChange={e => setLocation(e.target.value)} placeholder="ZIP code, City ST, or state (e.g. 98199, Seattle WA)" style={{...S.input,marginTop:8}} />
           <div style={{fontSize:16,color:"var(--dim)",marginTop:6,lineHeight:1.4}}>Searches the CMS NPI Registry — all licensed US healthcare providers. Use ZIP code for best results, or City + State abbreviation (e.g. "Seattle, WA").</div>
         </div>
 
         {rec.length > 0 && <div style={{...S.card,marginTop:10,padding:14,borderLeft:"3px solid var(--accent)"}}>
-          <div style={{fontSize:14,color:"var(--dim)"}}>🎯 <strong>Recommended for you:</strong></div>
+          <div style={{fontSize:14,color:"var(--dim)"}}><Icon name="search" size={14}/> <strong>Recommended for you:</strong></div>
           <div style={{display:"flex",flexWrap:"wrap",gap:5,marginTop:6}}>
             {rec.map(r => <button key={r} onClick={() => setSpecialty(r)} style={{...S.chip,...(specialty===r?S.chipActive:{}),fontSize:14,padding:"4px 10px"}}>{r}</button>)}
           </div>
         </div>}
 
         <button onClick={searchDoctors} disabled={searching || (!specialty && !location)} style={{...S.primaryBtn,width:"100%",marginTop:14,padding:14,opacity:searching?0.6:1}}>
-          {searching ? "🔍 Searching NPI Registry..." : "🔍 Search Providers"}
+          {searching ? "Searching NPI Registry..." : "🔍 Search Providers"}
         </button>
       </div>
     );
@@ -314,11 +315,11 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
     return (
       <div className="fade-up">
         <button onClick={() => setView("main")} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← Back</button>
-        <h2 style={S.h2}>🏥 Import from MyChart</h2>
+        <h2 style={S.h2}><Icon name="doctors" size={16}/> Import from MyChart</h2>
         <p style={{fontSize:15,color:"var(--dim)",marginTop:4,lineHeight:1.5}}>Copy your doctor/provider information from your MyChart patient portal and paste it below. The AI will extract and save all provider details.</p>
 
         <div style={{...S.card,marginTop:14,padding:16}}>
-          <h3 style={S.h3}>📋 How to export from MyChart</h3>
+          <h3 style={S.h3}><Icon name="summary" size={14}/> How to export from MyChart</h3>
           <div style={{marginTop:8,fontSize:15,color:"var(--dim)",lineHeight:1.7}}>
             <div>1. Log in to your <strong>MyChart</strong> account</div>
             <div>2. Go to <strong>My Providers</strong> or <strong>Care Team</strong></div>
@@ -331,11 +332,11 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
         <textarea value={myChartText} onChange={e => setMyChartText(e.target.value)} placeholder={"Paste your MyChart provider information here...\n\nExample:\nDr. Sarah Johnson, MD\nInternal Medicine\nNPI: 1234567890\nPhone: (555) 123-4567\nFax: (555) 123-4568\n123 Medical Center Dr, Suite 200\nSeattle, WA 98101\nAccepting New Patients: Yes\n\nYou can paste multiple providers at once."} rows={10} style={{...S.input,marginTop:12,resize:"vertical",fontFamily:"var(--mono)",fontSize:14}} />
 
         <button onClick={importMyChart} disabled={importing || !myChartText.trim()} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:importing?0.6:1}}>
-          {importing ? "🔄 Importing providers..." : "📥 Import Providers"}
+          {importing ? "Importing providers..." : "Import Providers"}
         </button>
 
         <div style={{...S.card,marginTop:12,padding:14,borderLeft:"3px solid var(--accent3)"}}>
-          <h3 style={{...S.h3,fontSize:15}}>💡 Also supported</h3>
+          <h3 style={{...S.h3,fontSize:15}}><Icon name="search" size={14}/> Also supported</h3>
           <p style={{fontSize:14,color:"var(--dim)",marginTop:4,lineHeight:1.5}}>You can also paste provider info from <strong>Epic MyChart</strong>, <strong>Cerner</strong>, <strong>Athenahealth</strong>, discharge summaries, referral letters, or any text containing doctor information.</p>
         </div>
       </div>
@@ -347,7 +348,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
     return (
       <div className="fade-up">
         <button onClick={() => setView("main")} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← Back</button>
-        <h2 style={S.h2}>➕ Add Doctor Manually</h2>
+        <h2 style={S.h2}><Icon name="doctors" size={16}/> Add Doctor Manually</h2>
         <div style={{...S.card,marginTop:14,padding:18}}>
           <div style={S.formGrid}>
             <label style={S.label}>Doctor Name *<input style={S.input} value={manualDoc.name} onChange={e => setManualDoc({...manualDoc,name:e.target.value})} placeholder="Dr. Jane Smith"/></label>
@@ -367,7 +368,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
             <input type="checkbox" checked={manualDoc.accepting} onChange={e => setManualDoc({...manualDoc,accepting:e.target.checked})} style={{width:16,height:16}} />
             <span>Accepting new patients</span>
           </label>
-          <button onClick={saveManual} disabled={!manualDoc.name.trim()} style={{...S.primaryBtn,width:"100%",marginTop:14}}>💾 Save Doctor</button>
+          <button onClick={saveManual} disabled={!manualDoc.name.trim()} style={{...S.primaryBtn,width:"100%",marginTop:14}}><Icon name="save" size={14}/> Save Doctor</button>
         </div>
       </div>
     );
@@ -380,29 +381,29 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
 
   return (
     <div className="fade-up">
-      <h2 style={S.h2}>👨‍⚕️ My Doctors</h2>
+      <h2 style={S.h2}><Icon name="doctors" size={18}/> My Doctors</h2>
       <p style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Find, save, and manage your healthcare providers</p>
 
       {/* Action buttons */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:14}}>
         <button onClick={() => setView("search")} className="card" style={{...S.card,padding:"16px 10px",textAlign:"center",border:"none",cursor:"pointer"}}>
-          <div style={{fontSize:24}}>🔍</div>
+          <div style={{fontSize:24}}><Icon name="search" size={22}/></div>
           <div style={{fontSize:14,fontWeight:600,color:"var(--accent)",marginTop:4}}>Find Doctor</div>
           <div style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Search by specialty & distance</div>
         </button>
         <button onClick={() => setView("mychart")} className="card" style={{...S.card,padding:"16px 10px",textAlign:"center",border:"none",cursor:"pointer"}}>
-          <div style={{fontSize:24}}>🏥</div>
+          <div style={{fontSize:24}}><Icon name="doctors" size={22}/></div>
           <div style={{fontSize:14,fontWeight:600,color:"var(--accent)",marginTop:4}}>MyChart Import</div>
           <div style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Import from patient portal</div>
         </button>
       </div>
-      <button onClick={() => setView("add")} style={{...S.secondaryBtn,width:"100%",marginTop:8,fontSize:15}}>➕ Add Doctor Manually</button>
+      <button onClick={() => setView("add")} style={{...S.secondaryBtn,width:"100%",marginTop:8,fontSize:15}}><Icon name="doctors" size={16}/> Add Doctor Manually</button>
 
       {/* Saved Doctors */}
       {savedDoctors.length > 0 ? (
         <div style={{marginTop:20}}>
           {myChartDocs.length > 0 && <>
-            <h3 style={{...S.h3,marginBottom:8}}>🏥 From MyChart ({myChartDocs.length})</h3>
+            <h3 style={{...S.h3,marginBottom:8}}><Icon name="doctors" size={14}/> From MyChart ({myChartDocs.length})</h3>
             <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:16}}>
               {myChartDocs.map(doc => (
                 <button key={doc.id} onClick={() => setSelectedDoc(doc)} className="card" style={{...S.card,padding:12,border:"none",cursor:"pointer",textAlign:"left",width:"100%"}}>
@@ -410,7 +411,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
                     <div><div style={{fontSize:16,fontWeight:600}}>{doc.name}</div><div style={{fontSize:14,color:"var(--accent)",marginTop:2}}>{doc.specialty}</div>{doc.phone&&<div style={{fontSize:16,color:"var(--dim)",marginTop:2}}>{doc.phone}</div>}</div>
                     <div style={{display:"flex",gap:6,alignItems:"center"}}>
                       <span style={{fontSize:15,padding:"2px 6px",background:"rgba(179,148,167,0.1)",borderRadius:6,color:"var(--accent3)"}}>MyChart</span>
-                      <button onClick={(e) => {e.stopPropagation();removeDoctor(doc.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:15}}>✕</button>
+                      <button onClick={(e) => {e.stopPropagation();removeDoctor(doc.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:15}}><Icon name="close" size={12}/></button>
                     </div>
                   </div>
                 </button>
@@ -419,7 +420,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
           </>}
 
           {[...searchDocs,...manualDocs].length > 0 && <>
-            <h3 style={{...S.h3,marginBottom:8}}>📋 Saved Doctors ({searchDocs.length + manualDocs.length})</h3>
+            <h3 style={{...S.h3,marginBottom:8}}><Icon name="summary" size={14}/> Saved Doctors ({searchDocs.length + manualDocs.length})</h3>
             <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:16}}>
               {[...searchDocs,...manualDocs].map(doc => (
                 <button key={doc.id} onClick={() => setSelectedDoc(doc)} className="card" style={{...S.card,padding:12,border:"none",cursor:"pointer",textAlign:"left",width:"100%"}}>
@@ -427,7 +428,7 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
                     <div><div style={{fontSize:16,fontWeight:600}}>{doc.name}</div><div style={{fontSize:14,color:"var(--accent)",marginTop:2}}>{doc.specialty}</div>{doc.address&&<div style={{fontSize:16,color:"var(--dim)",marginTop:2}}>{doc.address.split(",").slice(0,2).join(",")}</div>}</div>
                     <div style={{display:"flex",gap:6,alignItems:"center"}}>
                       {doc.rating>0&&<span style={{fontSize:14,color:"var(--accent2)"}}>★ {doc.rating}</span>}
-                      <button onClick={(e) => {e.stopPropagation();removeDoctor(doc.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:15}}>✕</button>
+                      <button onClick={(e) => {e.stopPropagation();removeDoctor(doc.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:15}}><Icon name="close" size={12}/></button>
                     </div>
                   </div>
                 </button>
@@ -437,14 +438,14 @@ Extract all providers/doctors found. If data is missing for a field, use empty s
         </div>
       ) : (
         <div style={{textAlign:"center",padding:"30px 20px",marginTop:16,color:"var(--dim)"}}>
-          <div style={{fontSize:40,marginBottom:10}}>👨‍⚕️</div>
+          <div style={{fontSize:40,marginBottom:10}}><Icon name="doctors" size={36}/></div>
           <p style={{fontSize:16}}>No doctors saved yet. Search for providers, import from MyChart, or add manually.</p>
         </div>
       )}
 
       {/* Specialty Guide */}
       <div style={{...S.card,marginTop:16,padding:16}}>
-        <h3 style={S.h3}>📖 Specialty Guide</h3>
+        <h3 style={S.h3}><Icon name="summary" size={14}/> Specialty Guide</h3>
         <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:6}}>
           {DOCTOR_SPECIALTIES.map(doc => (
             <div key={doc.name} style={{display:"flex",gap:8,alignItems:"center",padding:"6px 0",borderBottom:"1px solid var(--muted)"}}>

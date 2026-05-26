@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5a8a52" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10" fill="#5a8a52" fill-opacity="0.12" stroke="#5a8a52"/>
-  <text x="12" y="16" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#5a8a52" stroke="none">Lo</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5H5.5A1.5 1.5 0 014 19V5a1.5 1.5 0 011.5-1.5h9l4 4V19a1.5 1.5 0 01-1.5 1.5h-1"/><path d="M14.5 3.5V7a1 1 0 001 1H19"/><path d="M10.5 13.5l-2.5 6 6-2.5 7-7-3.5-3.5-7 7z"/><line x1="14.5" y1="10.5" x2="18" y2="14"/></svg>

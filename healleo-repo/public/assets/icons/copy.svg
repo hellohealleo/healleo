@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7a7680" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10" fill="#7a7680" fill-opacity="0.12" stroke="#7a7680"/>
-  <text x="12" y="16" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" fill="#7a7680" stroke="none">Cp</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="1.5"/><path d="M16 8V4.5A1.5 1.5 0 0014.5 3H4.5A1.5 1.5 0 003 4.5v10A1.5 1.5 0 004.5 16H8"/></svg>

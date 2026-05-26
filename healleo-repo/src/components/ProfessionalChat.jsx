@@ -5,11 +5,12 @@ import { buildPatientContext } from "../lib/patientContext.js";
 import { askMedicalAI } from "../lib/ai.js";
 import { RenderMD } from "./ui/RenderMD.jsx";
 import { Icon } from "./ui/Icon.jsx";
+import { VoiceInput } from "./ui/VoiceInput.jsx";
 
 const PROFESSIONAL_ROLES = {
   nutritionist: {
-    icon: "nutrition", title: "Nutritionist", name: "Healleo Nutrition",
-    greeting: "Hey — I'm your nutritionist. I've already been through your labs, your logs, your conditions, all of it. I won't sugarcoat things (pun intended), but I'll make sure the plan actually fits your life. What are we working on?",
+    icon: "nutrition", title: "Dietitian", name: "Healleo Nutrition",
+    greeting: "Hey — I'm your dietitian. I've already been through your labs, your logs, your conditions, all of it. I won't sugarcoat things (pun intended), but I'll make sure the plan actually fits your life. What are we working on?",
     starters: [
       "Build me a meal plan that actually hits my protein goals",
       "My labs came back — what should I be eating differently?",
@@ -19,12 +20,12 @@ const PROFESSIONAL_ROLES = {
       "Am I probably deficient in anything based on my data?"
     ],
     planTypes: [
-      { id: "meal-weekly", label: "📅 Weekly Meal Plan", prompt: "Create a detailed 7-day meal plan with specific meals, portions, and approximate macros for each day." },
+      { id: "meal-weekly", label: "Weekly Meal Plan", prompt: "Create a detailed 7-day meal plan with specific meals, portions, and approximate macros for each day." },
       { id: "meal-condition", label: "🩺 Condition-Based Diet", prompt: "Create a dietary plan specifically designed to help manage my medical conditions, with foods to emphasize and avoid." },
-      { id: "macro-targets", label: "📊 Macro Targets", prompt: "Calculate my ideal daily macro targets (protein, carbs, fat, calories, fiber) based on my body composition and goals, and suggest a sample day." },
-      { id: "shopping-list", label: "🛒 Shopping List", prompt: "Create a comprehensive weekly shopping list based on my dietary needs, goals, and conditions. Organize by store section." },
+      { id: "macro-targets", label: "Macro Targets", prompt: "Calculate my ideal daily macro targets (protein, carbs, fat, calories, fiber) based on my body composition and goals, and suggest a sample day." },
+      { id: "shopping-list", label: "Shopping List", prompt: "Create a comprehensive weekly shopping list based on my dietary needs, goals, and conditions. Organize by store section." },
     ],
-    systemPrompt: (ctx) => `You are a board-certified nutritionist and registered dietitian — part of the patient's personal Healleo health team alongside their doctor, trainer, and therapist.
+    systemPrompt: (ctx) => `You are a registered dietitian — part of the patient's personal Healleo health team alongside their doctor, trainer, and therapist.
 
 PERSONALITY — THIS IS WHO YOU ARE:
 - You're the friend who happens to have a nutrition degree. Warm, real, zero pretension.
@@ -65,12 +66,12 @@ YOUR CLINICAL APPROACH:
       "What should I do on rest days?"
     ],
     planTypes: [
-      { id: "workout-weekly", label: "📅 Weekly Workout Plan", prompt: "Create a detailed weekly workout plan with specific exercises, sets, reps, and rest periods for each day. Include warm-up and cool-down." },
-      { id: "flexibility", label: "🧘 Flexibility Program", prompt: "Design a flexibility and mobility program I can follow, considering my conditions and current fitness level. Include specific stretches with hold times." },
-      { id: "strength", label: "💪 Strength Program", prompt: "Build a progressive strength training program appropriate for my level, conditions, and goals. Include exercise alternatives for any limitations." },
-      { id: "cardio", label: "❤️ Cardio Plan", prompt: "Create a cardiovascular fitness plan considering my heart health, current fitness, and conditions. Include target heart rate zones and progression." },
+      { id: "workout-weekly", label: "Weekly Workout Plan", prompt: "Create a detailed weekly workout plan with specific exercises, sets, reps, and rest periods for each day. Include warm-up and cool-down." },
+      { id: "flexibility", label: "Flexibility Program", prompt: "Design a flexibility and mobility program I can follow, considering my conditions and current fitness level. Include specific stretches with hold times." },
+      { id: "strength", label: "Strength Program", prompt: "Build a progressive strength training program appropriate for my level, conditions, and goals. Include exercise alternatives for any limitations." },
+      { id: "cardio", label: "Cardio Plan", prompt: "Create a cardiovascular fitness plan considering my heart health, current fitness, and conditions. Include target heart rate zones and progression." },
     ],
-    systemPrompt: (ctx) => `You are a certified personal trainer and exercise physiologist — part of the patient's personal Healleo health team alongside their doctor, nutritionist, and therapist.
+    systemPrompt: (ctx) => `You are a certified personal trainer and exercise physiologist — part of the patient's personal Healleo health team alongside their doctor, dietitian, and therapist.
 
 PERSONALITY — THIS IS WHO YOU ARE:
 - You're the trainer who feels like a friend, not a drill sergeant. Encouraging but honest.
@@ -113,11 +114,11 @@ YOUR CLINICAL APPROACH:
     ],
     planTypes: [
       { id: "stress-plan", label: "🧘 Stress Management Plan", prompt: "Create a personalized stress management plan with daily practices, coping strategies, and lifestyle adjustments based on my specific stressors and health conditions." },
-      { id: "sleep-hygiene", label: "😴 Sleep Improvement Plan", prompt: "Design a comprehensive sleep improvement plan considering my conditions, medications, stress levels, and current sleep patterns. Include a bedtime routine." },
+      { id: "sleep-hygiene", label: "Sleep Improvement Plan", prompt: "Design a comprehensive sleep improvement plan considering my conditions, medications, stress levels, and current sleep patterns. Include a bedtime routine." },
       { id: "mood-plan", label: "🌤 Mood Improvement Plan", prompt: "Create a holistic plan to improve my mood and emotional wellbeing, incorporating evidence-based techniques like CBT strategies, behavioral activation, and lifestyle changes appropriate for my health situation." },
-      { id: "coping-toolkit", label: "🧰 Coping Toolkit", prompt: "Build me a personalized coping toolkit with specific strategies I can use when I'm overwhelmed, anxious, or in pain. Consider my conditions and what I'm going through." },
+      { id: "coping-toolkit", label: "Coping Toolkit", prompt: "Build me a personalized coping toolkit with specific strategies I can use when I'm overwhelmed, anxious, or in pain. Consider my conditions and what I'm going through." },
     ],
-    systemPrompt: (ctx) => `You are a licensed therapist and mental health counselor — part of the patient's personal Healleo health team alongside their doctor, nutritionist, and trainer.
+    systemPrompt: (ctx) => `You are a licensed therapist and mental health counselor — part of the patient's personal Healleo health team alongside their doctor, dietitian, and trainer.
 
 PERSONALITY — THIS IS WHO YOU ARE:
 - You're the friend who also happens to be a therapist. Present, warm, unhurried.
@@ -172,7 +173,7 @@ export function ProfessionalChat({role, state, update}) {
 
   // Other professionals (for share menu)
   const otherPros = Object.entries(PROFESSIONAL_ROLES).filter(([k]) => k !== role);
-  const proLabels = { nutritionist: "Nutritionist", trainer: "Trainer", therapist: "Therapist", doctor: "Dr. Healleo" };
+  const proLabels = { nutritionist: "Dietitian", trainer: "Trainer", therapist: "Therapist", doctor: "Dr. Healleo" };
   const proIcons = { nutritionist: "nutrition", trainer: "trainer", therapist: "therapist", doctor: "doctor" };
   // Map role keys for doctor
   const roleKey = role; // nutritionist, trainer, therapist
@@ -292,7 +293,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
   if (view === "plans") {
     return (<div className="fade-up">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={S.h2}><Icon name={config.icon} size={20} style={{marginRight:6}}/> Create a Plan</h2>
+        <h2 style={S.h2}><Icon name={config.icon} size={32} style={{marginRight:6}}/> Create a Plan</h2>
         <button onClick={() => setView("chat")} style={{ ...S.smallBtn, background: "var(--muted)", color: "var(--text)" }}>← Chat</button>
       </div>
       <p style={{ fontSize: 14, color: "var(--dim)", marginTop: 6, lineHeight: 1.6 }}>
@@ -318,11 +319,11 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
   return (<div className="fade-up">
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <div>
-        <h2 style={S.h2}><Icon name={config.icon} size={20} style={{marginRight:6}}/> {config.name}</h2>
+        <h2 style={S.h2}><Icon name={config.icon} size={32} style={{marginRight:6}}/> {config.name}</h2>
         <p style={{ fontSize: 14, color: "var(--dim)", marginTop: 2 }}>Personalized from {dataPoints} data points</p>
       </div>
       <div style={{ display: "flex", gap: 6 }}>
-        <button onClick={() => setView("plans")} style={{ ...S.smallBtn, background: "var(--accent2)", fontSize: 13 }}>📋 Plans</button>
+        <button onClick={() => setView("plans")} style={{ ...S.smallBtn, background: "var(--accent2)", fontSize: 13 }}><Icon name="summary" size={14}/> Plans</button>
         {msgs.length > 0 && <button onClick={() => update(s => { s[config.chatKey] = []; })} style={{ ...S.smallBtn, background: "var(--muted)", color: "var(--text)", fontSize: 13 }}>Clear</button>}
       </div>
     </div>
@@ -350,9 +351,9 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
     <div style={{ ...S.card, marginTop: 12, padding: 0, minHeight: 400, maxHeight: "62vh", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
         {msgs.length === 0 && !loading && <div style={{ textAlign: "center", padding: "24px 10px" }}>
-          <div style={{ marginBottom: 10 }}><Icon name={config.icon} size={48}/></div>
+          <div style={{ marginBottom: 10 }}><Icon name={config.icon} size={80}/></div>
           <p style={{ fontFamily: "var(--display)", fontSize: 16, fontWeight: 500 }}>{config.greeting}</p>
-          <p style={{ fontSize: 14, color: "var(--dim)", margin: "8px 0 16px", lineHeight: 1.5 }}>Ask me anything, or tap <strong>📋 Plans</strong> to generate a personalized program.</p>
+          <p style={{ fontSize: 14, color: "var(--dim)", margin: "8px 0 16px", lineHeight: 1.5 }}>Ask me anything, or tap <strong><Icon name="summary" size={14}/> Plans</strong> to generate a personalized program.</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {config.starters.map(s => <button key={s} onClick={() => send(s)}
               style={{ padding: "10px 14px", background: "var(--bg)", border: "1px solid var(--muted)", borderRadius: 10, fontSize: 14, color: "var(--text)", cursor: "pointer", textAlign: "left", fontFamily: "var(--body)" }}
@@ -395,7 +396,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
                     return <button onClick={() => !alreadyShared && sharePlan(i, "doctor")} disabled={alreadyShared}
                       style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 12px", background: "none", border: "none", cursor: alreadyShared ? "default" : "pointer", fontFamily: "var(--body)", fontSize: 13, color: alreadyShared ? "var(--dim)" : "var(--text)", opacity: alreadyShared ? 0.5 : 1 }}
                       onMouseEnter={e => { if (!alreadyShared) e.target.style.background = "var(--bg)"; }} onMouseLeave={e => e.target.style.background = "none"}>
-                      <Icon name="doctor" size={28}/><span>Dr. Healleo</span>
+                      <Icon name="doctor" size={20}/><span>Dr. Healleo</span>
                       {alreadyShared && <span style={{ fontSize: 10, color: "var(--success)", marginLeft: "auto" }}>✓</span>}
                     </button>;
                   })()}
@@ -412,7 +413,7 @@ Make this plan HIGHLY PERSONALIZED to my specific profile, conditions, goals, cu
         <div ref={chatEnd} />
       </div>
       <div style={{ padding: "10px 14px", borderTop: "1px solid var(--muted)", display: "flex", gap: 8 }}>
-        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder={`Ask your ${config.title.toLowerCase()}...`} disabled={loading} style={{ ...S.input, flex: 1, border: "none", background: "transparent", padding: "8px 0" }} />
+        <VoiceInput value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder={`Ask your ${config.title.toLowerCase()}...`} disabled={loading} style={{ ...S.input, flex: 1, border: "none", background: "transparent", padding: "8px 0" }} />
         <button onClick={() => send()} disabled={loading || !input.trim()} style={{ ...S.primaryBtn, padding: "8px 16px", fontSize: 15, opacity: loading || !input.trim() ? 0.5 : 1 }}>Send</button>
       </div>
     </div>

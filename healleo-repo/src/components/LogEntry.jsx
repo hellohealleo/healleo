@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
+import { VoiceInput } from "./ui/VoiceInput.jsx";
 import { MOODS } from "../lib/profile.js";
 import { S } from "../styles/theme.js";
 import { today } from "../lib/state.js";
 import { getOrCreateLog } from "../lib/logs.js";
+import { Icon } from "./ui/Icon.jsx";
 
 export function LogEntry({log,updateLog,selDate,setSelDate,waterGoal,state,update}){
   const [nlInput, setNlInput] = useState("");
@@ -286,16 +288,16 @@ CRITICAL RULES:
 
   return <div className="fade-up">
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-      <h2 style={S.h2}>✏️ Daily Log</h2>
+      <h2 style={S.h2}><Icon name="edit" size={18}/> Daily Log</h2>
       <input type="date" value={selDate} onChange={e=>setSelDate(e.target.value)} style={{...S.input,width:"auto",fontSize:15}}/>
     </div>
 
     {/* Natural Language Input */}
     <div style={{...S.card,marginTop:14,padding:16,borderLeft:"3px solid var(--accent3)"}}>
-      <h3 style={S.h3}>💬 Quick Log — just type it</h3>
+      <h3 style={S.h3}><Icon name="chat" size={16}/> Quick Log — just type it</h3>
       <p style={{fontSize:14,color:"var(--dim)",marginTop:4,lineHeight:1.5}}>Describe what you want to log in plain English. Works for single days, date ranges, and weekly averages.</p>
       <div style={{display:"flex",gap:6,marginTop:10}}>
-        <input value={nlInput} onChange={e=>setNlInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&parseNaturalLog()}
+        <VoiceInput value={nlInput} onChange={e=>setNlInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&parseNaturalLog()}
           placeholder="e.g. I averaged 2.5L water and 7hrs sleep this week..." disabled={nlLoading}
           style={{...S.input,flex:1}} />
         <button onClick={parseNaturalLog} disabled={nlLoading||!nlInput.trim()} style={{...S.primaryBtn,fontSize:15,padding:"8px 14px",opacity:nlLoading||!nlInput.trim()?0.5:1,whiteSpace:"nowrap"}}>
@@ -327,7 +329,7 @@ CRITICAL RULES:
     {/* Recent NL logs */}
     {nlHistory.length > 0 && (
       <div style={{...S.card,marginTop:10,padding:12}}>
-        <h3 style={{...S.h3,fontSize:14}}>📜 Recent quick logs</h3>
+        <h3 style={{...S.h3,fontSize:14}}><Icon name="timeline" size={14}/> Recent quick logs</h3>
         <div style={{marginTop:6,display:"flex",flexDirection:"column",gap:4}}>
           {nlHistory.slice(-3).reverse().map((h,i) => (
             <div key={i} style={{fontSize:14,color:"var(--dim)",padding:"4px 0",borderBottom:i<2?"1px solid var(--muted)":"none"}}>
@@ -342,12 +344,12 @@ CRITICAL RULES:
     {/* ─── BACKFILL & IMPORT SECTION ─── */}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:12}}>
       <button onClick={()=>setShowBackfill(!showBackfill)} className="card" style={{...S.card,padding:"12px 8px",textAlign:"center",border:"none",cursor:"pointer"}}>
-        <div style={{fontSize:20}}>📅</div>
+        <div style={{fontSize:20}}><Icon name="timeline" size={18}/></div>
         <div style={{fontSize:16,fontWeight:600,marginTop:3,color:"var(--accent)"}}>Backfill History</div>
         <div style={{fontSize:15,color:"var(--dim)",marginTop:1}}>Describe your routines</div>
       </button>
       <button onClick={()=>healthFileRef.current?.click()} className="card" style={{...S.card,padding:"12px 8px",textAlign:"center",border:"none",cursor:"pointer"}}>
-        <div style={{fontSize:20}}>🍎</div>
+        <div style={{fontSize:20}}><Icon name="share" size={18}/></div>
         <div style={{fontSize:16,fontWeight:600,marginTop:3,color:"var(--accent)"}}>Apple Health</div>
         <div style={{fontSize:15,color:"var(--dim)",marginTop:1}}>Import export.xml</div>
       </button>
@@ -358,14 +360,14 @@ CRITICAL RULES:
     {healthResult&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,background:healthResult.success?"rgba(107,90,36,0.08)":"rgba(184,84,84,0.08)",color:healthResult.success?"var(--success)":"var(--danger)",border:`1px solid ${healthResult.success?"rgba(107,90,36,0.18)":"rgba(196,90,90,0.2)"}`}}>{healthResult.success&&<span style={{fontWeight:600}}>✓ </span>}{healthResult.summary}</div>}
 
     {showBackfill&&<div style={{...S.card,marginTop:10,padding:16,borderLeft:"3px solid var(--accent2)"}}>
-      <h3 style={S.h3}>📅 Backfill Your History</h3>
+      <h3 style={S.h3}><Icon name="timeline" size={14}/> Backfill Your History</h3>
       <p style={{fontSize:14,color:"var(--dim)",marginTop:4,lineHeight:1.6}}>Describe your typical daily routines in plain English. The AI will generate 30 days of realistic historic data with natural day-to-day variation, so your doctor summaries and AI analysis have context from day one.</p>
       <textarea value={backfillText} onChange={e=>setBackfillText(e.target.value)} rows={5} placeholder={"Describe your typical routines, e.g.:\n\nI do 30 minutes of yoga every weekday morning. I take a daily walk of 55 minutes. I drink about 64 ounces of water a day. I usually sleep 7 hours on weeknights and 8 on weekends. I eat around 1800 calories, mostly Mediterranean diet. I take vitamin D, magnesium and fish oil daily. On weekends I do a 45 minute run."} style={{...S.input,marginTop:10,resize:"vertical",fontSize:15,lineHeight:1.5}}/>
       <button onClick={backfillHistory} disabled={backfillLoading||!backfillText.trim()} style={{...S.primaryBtn,width:"100%",marginTop:10,padding:14,opacity:backfillLoading?0.6:1}}>
         {backfillLoading?<><span style={{display:"inline-flex",gap:3,marginRight:8}}>{[0,1,2].map(i=><span key={i} style={{width:6,height:6,borderRadius:"50%",background:"#fff",display:"inline-block",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</span>Generating 30 days of history...</>:"📅 Generate Historical Data"}
       </button>
       {backfillResult&&<div style={{marginTop:8,padding:"8px 12px",borderRadius:8,fontSize:15,lineHeight:1.5,background:backfillResult.success?"rgba(107,90,36,0.08)":"rgba(184,84,84,0.08)",color:backfillResult.success?"var(--success)":"var(--danger)",border:`1px solid ${backfillResult.success?"rgba(107,90,36,0.18)":"rgba(196,90,90,0.2)"}`}}>{backfillResult.success&&<span style={{fontWeight:600}}>✓ </span>}{backfillResult.summary}{backfillResult.count>0&&<span> ({backfillResult.count} days added)</span>}</div>}
-      <div style={{fontSize:16,color:"var(--dim)",marginTop:8,lineHeight:1.5}}>💡 Only fills in days that don't already have data. Existing logs are preserved. You can run this multiple times to add different routine aspects.</div>
+      <div style={{fontSize:16,color:"var(--dim)",marginTop:8,lineHeight:1.5}}><Icon name="search" size={12}/> Only fills in days that don't already have data. Existing logs are preserved. You can run this multiple times to add different routine aspects.</div>
     </div>}
 
     {/* Divider */}
@@ -377,32 +379,32 @@ CRITICAL RULES:
 
     {/* Manual controls */}
     <div style={{...S.card,marginTop:8,padding:16}}>
-      <h3 style={S.h3}>💧 Water ({log.water} oz / {waterGoal} oz)</h3>
+      <h3 style={S.h3}><Icon name="water" size={14}/> Water ({log.water} oz / {waterGoal} oz)</h3>
       <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
         {[8,16,32].map(a=><button key={a} onClick={()=>updateLog(l=>l.water=Math.round(l.water+a))} style={S.smallBtn}>+{a}oz</button>)}
         <button onClick={()=>updateLog(l=>l.water=Math.max(0,Math.round(l.water-8)))} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)"}}>−8oz</button>
       </div>
     </div>
     <div style={{...S.card,marginTop:10,padding:16}}>
-      <h3 style={S.h3}>😴 Sleep</h3>
+      <h3 style={S.h3}><Icon name="sleep" size={14}/> Sleep</h3>
       <div style={{display:"flex",alignItems:"center",gap:10,marginTop:8}}>
         <input type="range" min="0" max="14" step="0.5" value={log.sleep} onChange={e=>updateLog(l=>l.sleep=parseFloat(e.target.value))} style={{flex:1}}/>
         <span style={{fontFamily:"var(--mono)",fontSize:16}}>{log.sleep}hr</span>
       </div>
     </div>
     <div style={{...S.card,marginTop:10,padding:16}}>
-      <h3 style={S.h3}>👟 Steps</h3>
+      <h3 style={S.h3}><Icon name="search" size={14}/> Steps</h3>
       <input type="number" value={log.steps||""} onChange={e=>updateLog(l=>l.steps=parseInt(e.target.value)||0)} placeholder="0" style={{...S.input,marginTop:8}}/>
     </div>
     <div style={{...S.card,marginTop:10,padding:16}}>
-      <h3 style={S.h3}>🧠 Mood</h3>
+      <h3 style={S.h3}><Icon name="memory" size={14}/> Mood</h3>
       <div style={{display:"flex",gap:8,marginTop:8}}>
         {MOODS.map((m,i)=><button key={i} onClick={()=>updateLog(l=>l.mood=i)} style={{fontSize:24,background:"none",border:"none",cursor:"pointer",opacity:log.mood===i?1:0.3,transform:log.mood===i?"scale(1.2)":"none",transition:"all 0.2s"}}>{m}</button>)}
       </div>
     </div>
     <div style={{...S.card,marginTop:10,padding:16}}>
-      <h3 style={S.h3}>📝 Notes</h3>
-      <textarea value={log.notes} onChange={e=>updateLog(l=>l.notes=e.target.value)} placeholder="How are you feeling?" rows={3} style={{...S.input,marginTop:8,resize:"vertical"}}/>
+      <h3 style={S.h3}><Icon name="edit" size={14}/> Notes</h3>
+      <VoiceInput multiline rows={3} value={log.notes} onChange={e=>updateLog(l=>l.notes=e.target.value)} placeholder="How are you feeling?" style={{...S.input,marginTop:8,resize:"vertical"}}/>
     </div>
   </div>;
 }

@@ -108,9 +108,9 @@ export function LabResults({state,update}) {
     const flagged = viewing.results.filter(r=>r.flag&&r.flag!=="NORMAL");
     return <div className="fade-up">
       <button onClick={()=>{setViewing(null);setAiAnalysis(null);}} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← Back</button>
-      <h2 style={S.h2}>🧪 {viewing.name}</h2>
+      <h2 style={S.h2}><Icon name="labs" size={18}/> {viewing.name}</h2>
       <div style={{fontSize:15,color:"var(--dim)",marginTop:2,fontFamily:"var(--mono)"}}>{viewing.date}</div>
-      {flagged.length>0&&<div style={{...S.card,marginTop:12,padding:14,borderLeft:"3px solid var(--danger)",background:"rgba(184,84,84,0.06)"}}><div style={{fontWeight:600,fontSize:16,color:"var(--danger)"}}>⚠️ {flagged.length} abnormal result{flagged.length>1?"s":""}</div><div style={{fontSize:15,color:"var(--dim)",marginTop:4}}>{flagged.map(f=>`${f.name}: ${f.value} ${f.unit} [${f.flag}]`).join(" · ")}</div></div>}
+      {flagged.length>0&&<div style={{...S.card,marginTop:12,padding:14,borderLeft:"3px solid var(--danger)",background:"rgba(184,84,84,0.06)"}}><div style={{fontWeight:600,fontSize:16,color:"var(--danger)"}}><Icon name="warning" size={14}/> {flagged.length} abnormal result{flagged.length>1?"s":""}</div><div style={{fontSize:15,color:"var(--dim)",marginTop:4}}>{flagged.map(f=>`${f.name}: ${f.value} ${f.unit} [${f.flag}]`).join(" · ")}</div></div>}
       <div style={{...S.card,marginTop:12,padding:0}}>
         {viewing.results.map((r,i) => {
           const range = LAB_RANGES[r.name];
@@ -121,7 +121,7 @@ export function LabResults({state,update}) {
           </div>;
         })}
       </div>
-      <button onClick={()=>analyzeResults(viewing)} disabled={analyzing} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:analyzing?0.6:1}}>{analyzing?"🧠 Analyzing with your full history...":<><Icon name="doctor" size={28}/> AI Analysis of These Results</>}</button>
+      <button onClick={()=>analyzeResults(viewing)} disabled={analyzing} style={{...S.primaryBtn,width:"100%",marginTop:12,padding:14,opacity:analyzing?0.6:1}}>{analyzing?"Analyzing with your full history...":<><Icon name="doctor" size={20}/> AI Analysis of These Results</>}</button>
       {aiAnalysis&&<div style={{...S.card,marginTop:12}}><RenderMD text={aiAnalysis}/></div>}
     </div>;
   }
@@ -129,14 +129,14 @@ export function LabResults({state,update}) {
   if (mode==="upload") {
     return <div className="fade-up">
       <button onClick={()=>setMode("view")} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← Back</button>
-      <h2 style={S.h2}>📄 Upload Test Results</h2>
+      <h2 style={S.h2}><Icon name="attach" size={16}/> Upload Test Results</h2>
       <p style={{fontSize:15,color:"var(--dim)",marginTop:4,lineHeight:1.5}}>Paste your lab report text below — or type/copy results from a PDF, photo, or patient portal. The AI will extract the values automatically.</p>
       <textarea value={uploadText} onChange={e=>setUploadText(e.target.value)} placeholder={"Paste lab results here, e.g.:\n\nGlucose, Fasting: 95 mg/dL\nHemoglobin A1c: 5.4%\nTSH: 2.1 mIU/L\nVitamin D: 28 ng/mL\nTotal Cholesterol: 210 mg/dL\nLDL: 130 mg/dL\nHDL: 55 mg/dL\n\nOr paste the entire lab report text..."} rows={12} style={{...S.input,marginTop:12,resize:"vertical",fontFamily:"var(--mono)",fontSize:15}}/>
       <div style={{display:"flex",gap:8,marginTop:12}}>
         <button onClick={parseUpload} disabled={parsing||!uploadText.trim()} style={{...S.primaryBtn,flex:1,opacity:parsing?0.6:1}}>{parsing?"🔍 Parsing results...":"🧪 Extract Lab Values"}</button>
       </div>
       <div style={{...S.card,marginTop:16,padding:14,borderLeft:"3px solid var(--accent3)"}}>
-        <h3 style={S.h3}>💡 Tips</h3>
+        <h3 style={S.h3}><Icon name="search" size={14}/> Tips</h3>
         <p style={{fontSize:14,color:"var(--dim)",lineHeight:1.6,marginTop:4}}>Works best with structured text from patient portals (MyChart, LabCorp, Quest). You can also manually type values. The AI will match test names to standard references and flag abnormals.</p>
       </div>
     </div>;
@@ -145,7 +145,7 @@ export function LabResults({state,update}) {
   if (mode==="add") {
     return <div className="fade-up">
       <button onClick={()=>{setMode("view");setEntries([]);setSelCat(null);}} style={{...S.smallBtn,background:"var(--muted)",color:"var(--text)",marginBottom:12}}>← Back</button>
-      <h2 style={S.h2}>➕ Add Lab Results</h2>
+      <h2 style={S.h2}><Icon name="labs" size={16}/> Add Lab Results</h2>
       <div style={{display:"flex",gap:8,marginTop:12}}><label style={{...S.label,flex:1}}>Date<input type="date" value={labDate} onChange={e=>setLabDate(e.target.value)} style={S.input}/></label><label style={{...S.label,flex:1}}>Label<input value={labName} onChange={e=>setLabName(e.target.value)} placeholder="e.g. Annual Physical" style={S.input}/></label></div>
 
       {!selCat && entries.length===0 && <div style={{...S.card,marginTop:14,padding:16}}><h3 style={S.h3}>Select test category:</h3><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginTop:10}}>
@@ -168,11 +168,11 @@ export function LabResults({state,update}) {
               <input type="number" value={e.value} onChange={ev=>updateEntry(i,ev.target.value)} placeholder="Value" style={{...S.input,width:80,textAlign:"right"}} step="any"/>
               <span style={{fontSize:16,color:"var(--dim)",minWidth:36}}>{e.unit}</span>
               {e.flag&&<span style={{fontSize:15,fontFamily:"var(--mono)",color:flagColor,fontWeight:600,minWidth:40}}>{e.flag}</span>}
-              <button onClick={()=>setEntries(entries.filter((_,j)=>j!==i))} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:16}}>✕</button>
+              <button onClick={()=>setEntries(entries.filter((_,j)=>j!==i))} style={{background:"none",border:"none",cursor:"pointer",color:"var(--danger)",fontSize:16}}><Icon name="close" size={12}/></button>
             </div>;
           })}
         </div>
-        <button onClick={saveResults} style={{...S.primaryBtn,width:"100%",marginTop:14}}>💾 Save Lab Results</button>
+        <button onClick={saveResults} style={{...S.primaryBtn,width:"100%",marginTop:14}}><Icon name="save" size={14}/> Save Lab Results</button>
       </div>}
     </div>;
   }
@@ -182,13 +182,13 @@ export function LabResults({state,update}) {
   const flaggedCount = labs.reduce((s,lr)=>s+lr.results.filter(r=>r.flag&&r.flag!=="NORMAL").length, 0);
 
   return <div className="fade-up">
-    <h2 style={S.h2}>🧪 Lab Results & Test Data</h2>
+    <h2 style={S.h2}><Icon name="labs" size={18}/> Lab Results & Test Data</h2>
     <p style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Upload results to train your AI health concierge</p>
 
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,marginTop:14}}>
-      <button onClick={()=>setMode("add")} className="card" style={{...S.card,padding:"14px 8px",textAlign:"center",border:"none",cursor:"pointer"}}><div style={{fontSize:22}}>➕</div><div style={{fontSize:16,fontWeight:600,marginTop:4,color:"var(--accent)"}}>Manual</div></button>
-      <button onClick={()=>setMode("upload")} className="card" style={{...S.card,padding:"14px 8px",textAlign:"center",border:"none",cursor:"pointer"}}><div style={{fontSize:22}}>📄</div><div style={{fontSize:16,fontWeight:600,marginTop:4,color:"var(--accent)"}}>Paste</div></button>
-      <button onClick={()=>pdfInputRef.current?.click()} className="card" style={{...S.card,padding:"14px 8px",textAlign:"center",border:"none",cursor:"pointer"}}><div style={{fontSize:22}}>📎</div><div style={{fontSize:16,fontWeight:600,marginTop:4,color:"var(--accent)"}}>Upload PDF</div></button>
+      <button onClick={()=>setMode("add")} className="card" style={{...S.card,padding:"14px 8px",textAlign:"center",border:"none",cursor:"pointer"}}><div style={{fontSize:22}}><Icon name="labs" size={16}/></div><div style={{fontSize:16,fontWeight:600,marginTop:4,color:"var(--accent)"}}>Manual</div></button>
+      <button onClick={()=>setMode("upload")} className="card" style={{...S.card,padding:"14px 8px",textAlign:"center",border:"none",cursor:"pointer"}}><div style={{fontSize:22}}><Icon name="attach" size={16}/></div><div style={{fontSize:16,fontWeight:600,marginTop:4,color:"var(--accent)"}}>Paste</div></button>
+      <button onClick={()=>pdfInputRef.current?.click()} className="card" style={{...S.card,padding:"14px 8px",textAlign:"center",border:"none",cursor:"pointer"}}><div style={{fontSize:22}}><Icon name="attach" size={16}/></div><div style={{fontSize:16,fontWeight:600,marginTop:4,color:"var(--accent)"}}>Upload PDF</div></button>
       <div className="card" style={{...S.card,padding:"14px 8px",textAlign:"center"}}><div style={{fontFamily:"var(--display)",fontSize:22,fontWeight:600,color:"var(--text)"}}>{labs.length}</div><div style={{fontSize:16,color:"var(--dim)",marginTop:2}}>Reports{flaggedCount>0&&<span style={{color:"var(--danger)"}}> · {flaggedCount} flags</span>}</div></div>
     </div>
     <input ref={pdfInputRef} type="file" accept=".pdf" style={{display:"none"}} onChange={handlePdfUpload}/>
@@ -196,7 +196,7 @@ export function LabResults({state,update}) {
     {parsing&&<div style={{...S.card,marginTop:12,padding:16,textAlign:"center"}}><div style={{display:"flex",gap:4,justifyContent:"center"}}>{[0,1,2].map(i=><div key={i} style={{width:7,height:7,borderRadius:"50%",background:"var(--accent)",animation:`pulse 1s ease-in-out ${i*0.15}s infinite`}}/>)}</div><div style={{fontSize:15,color:"var(--dim)",marginTop:8}}>Extracting lab values from PDF...</div></div>}
 
     {labs.length>0&&<div style={{...S.card,marginTop:12,padding:14,borderLeft:"3px solid var(--accent3)",background:"rgba(179,148,167,0.04)"}}>
-      <div style={{fontSize:15,color:"var(--dim)"}}>🧠 <strong>AI Learning:</strong> Your {labs.length} lab report{labs.length>1?"s":""} with {labs.reduce((s,lr)=>s+lr.results.length,0)} total test values are being used to personalize every AI response. The more data you add, the smarter your health concierge becomes.</div>
+      <div style={{fontSize:15,color:"var(--dim)"}}><Icon name="memory" size={14}/> <strong>AI Learning:</strong> Your {labs.length} lab report{labs.length>1?"s":""} with {labs.reduce((s,lr)=>s+lr.results.length,0)} total test values are being used to personalize every AI response. The more data you add, the smarter your health concierge becomes.</div>
     </div>}
 
     <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}>
@@ -213,6 +213,6 @@ export function LabResults({state,update}) {
         </button>;
       })}
     </div>
-    {labs.length===0&&<div style={{textAlign:"center",padding:"40px 20px",color:"var(--dim)"}}><div style={{fontSize:40,marginBottom:10}}>🧪</div><p style={{fontSize:16}}>No lab results yet. Add your first report to start building your health profile.</p></div>}
+    {labs.length===0&&<div style={{textAlign:"center",padding:"40px 20px",color:"var(--dim)"}}><div style={{fontSize:40,marginBottom:10}}><Icon name="labs" size={36}/></div><p style={{fontSize:16}}>No lab results yet. Add your first report to start building your health profile.</p></div>}
   </div>;
 }

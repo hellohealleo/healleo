@@ -3,6 +3,7 @@ import { S } from "../styles/theme.js";
 import { today } from "../lib/state.js";
 import { RenderMD } from "./ui/RenderMD.jsx";
 import { searchPlans, checkDrugCoverage, checkProviderNetwork, scorePlans } from "../lib/insurance.js";
+import { Icon } from "./ui/Icon.jsx";
 
 const METAL_COLORS = { Catastrophic: "var(--dim)", Bronze: "#cd7f32", Silver: "#a0a0a0", Gold: "#d4a017", Platinum: "var(--accent3)" };
 
@@ -190,8 +191,8 @@ Keep it under 200 words. Use contractions. Talk like a knowledgeable friend.` }]
 
         {/* Context badges */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
-          {activeMeds.length > 0 && <span style={{ fontSize: 13, padding: "3px 8px", background: "rgba(107,90,36,0.1)", borderRadius: 10, color: "var(--accent)" }}>💊 {activeMeds.length} meds will be checked</span>}
-          {savedDoctors.length > 0 && <span style={{ fontSize: 13, padding: "3px 8px", background: "rgba(179,148,167,0.1)", borderRadius: 10, color: "var(--accent3)" }}>👨‍⚕️ {savedDoctors.length} doctors will be checked</span>}
+          {activeMeds.length > 0 && <span style={{ fontSize: 13, padding: "3px 8px", background: "rgba(107,90,36,0.1)", borderRadius: 10, color: "var(--accent)" }}><Icon name="meds" size={13}/> {activeMeds.length} meds will be checked</span>}
+          {savedDoctors.length > 0 && <span style={{ fontSize: 13, padding: "3px 8px", background: "rgba(179,148,167,0.1)", borderRadius: 10, color: "var(--accent3)" }}><Icon name="doctors" size={13}/> {savedDoctors.length} doctors will be checked</span>}
           {(state.profile.conditions || []).filter(c => c !== "None").length > 0 && <span style={{ fontSize: 13, padding: "3px 8px", background: "rgba(245,168,0,0.1)", borderRadius: 10, color: "var(--accent2)" }}>{(state.profile.conditions || []).filter(c => c !== "None").length} conditions factored in</span>}
         </div>
 

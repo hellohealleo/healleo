@@ -3,6 +3,7 @@ import { S } from "../styles/theme.js";
 import { today } from "../lib/state.js";
 import { fmtHeight } from "../lib/format.js";
 import { RenderMD } from "./ui/RenderMD.jsx";
+import { Icon } from "./ui/Icon.jsx";
 
 export function DoctorSummary({state}) {
   const [summary,setSummary]=useState(null);
@@ -81,7 +82,7 @@ AI OBSERVATIONS (accumulated insights):
 ${(state.aiMemory||[]).slice(-10).map(m=>`- [${m.date}] ${m.insight}`).join("\n")||"None"}
 
 HEALLEO TEAM NOTES:
-${(state.nutritionChat||[]).length>0?`Nutritionist: ${(state.nutritionChat||[]).filter(m=>m.role==="assistant").length} consultations conducted`:"Nutritionist: No sessions yet"}
+${(state.nutritionChat||[]).length>0?`Dietitian: ${(state.nutritionChat||[]).filter(m=>m.role==="assistant").length} consultations conducted`:"Dietitian: No sessions yet"}
 ${(state.trainerChat||[]).length>0?`Trainer: ${(state.trainerChat||[]).filter(m=>m.role==="assistant").length} consultations conducted`:"Trainer: No sessions yet"}
 ${(state.therapistChat||[]).length>0?`Therapist: ${(state.therapistChat||[]).filter(m=>m.role==="assistant").length} consultations conducted`:"Therapist: No sessions yet"}
 
@@ -113,7 +114,7 @@ Be specific with dates, values, and references. Flag anything the doctor should 
   };
 
   return <div className="fade-up">
-    <h2 style={S.h2}>📋 Doctor Visit Summary</h2>
+    <h2 style={S.h2}><Icon name="summary" size={18}/> Doctor Visit Summary</h2>
     <p style={{fontSize:15,color:"var(--dim)",marginTop:2,lineHeight:1.5}}>Generate a comprehensive health summary to bring to your next doctor's appointment. Includes symptoms, labs, medications, lifestyle data, and AI observations.</p>
 
     <div style={{...S.card,marginTop:14,padding:18}}>
@@ -142,7 +143,7 @@ Be specific with dates, values, and references. Flag anything the doctor should 
     {summary && <div style={{marginTop:16}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
         <h3 style={S.h3}>Your Summary</h3>
-        <button onClick={()=>{navigator.clipboard?.writeText(summary);}} style={{...S.smallBtn,fontSize:16}}>📋 Copy</button>
+        <button onClick={()=>{navigator.clipboard?.writeText(summary);}} style={{...S.smallBtn,fontSize:16}}><Icon name="summary" size={14}/> Copy</button>
       </div>
       <div style={{...S.card,padding:20,background:"var(--card)",border:"1.5px solid var(--muted)"}}>
         <div style={{borderBottom:"2px solid var(--accent)",paddingBottom:12,marginBottom:16}}>
@@ -153,7 +154,7 @@ Be specific with dates, values, and references. Flag anything the doctor should 
         <RenderMD text={summary}/>
       </div>
       <div style={{...S.card,marginTop:10,padding:14,borderLeft:"3px solid var(--accent)"}}>
-        <div style={{fontSize:14,color:"var(--dim)",lineHeight:1.6}}>💡 <strong>How to use:</strong> Copy this summary and print it, or show it on your phone during your doctor visit. It gives your provider a quick overview of your recent health data, symptoms, and trends so you can make the most of your appointment time.</div>
+        <div style={{fontSize:14,color:"var(--dim)",lineHeight:1.6}}><Icon name="search" size={14}/> <strong>How to use:</strong> Copy this summary and print it, or show it on your phone during your doctor visit. It gives your provider a quick overview of your recent health data, symptoms, and trends so you can make the most of your appointment time.</div>
       </div>
     </div>}
   </div>;

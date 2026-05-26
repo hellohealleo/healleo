@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { S } from "../styles/theme.js";
 import { today } from "../lib/state.js";
+import { Icon } from "./ui/Icon.jsx";
 
 export function HealthTimeline({state,update}) {
   const [adding,setAdding]=useState(false);
@@ -8,7 +9,7 @@ export function HealthTimeline({state,update}) {
   const [pdfParsing,setPdfParsing]=useState(false);
   const pdfRef = useRef(null);
   const timeline = [...(state.healthTimeline||[])].sort((a,b)=>b.date.localeCompare(a.date));
-  const eventTypes = [{v:"visit",l:"🏥 Doctor Visit"},{v:"diagnosis",l:"📋 Diagnosis"},{v:"medication",l:"💊 Medication Change"},{v:"procedure",l:"🔧 Procedure"},{v:"vaccination",l:"💉 Vaccination"},{v:"lab",l:"🧪 Lab Results"},{v:"symptom",l:"🔍 Symptom Event"},{v:"lifestyle",l:"🌿 Lifestyle Change"},{v:"note",l:"📝 General Note"}];
+  const eventTypes = [{v:"visit",l:"Doctor Visit"},{v:"diagnosis",l:"Diagnosis"},{v:"medication",l:"Medication Change"},{v:"procedure",l:"Procedure"},{v:"vaccination",l:"Vaccination"},{v:"lab",l:"🧪 Lab Results"},{v:"symptom",l:"🔍 Symptom Event"},{v:"lifestyle",l:"🌿 Lifestyle Change"},{v:"note",l:"📝 General Note"}];
   const typeColors = {visit:"var(--accent3)",diagnosis:"var(--accent4)",medication:"var(--accent2)",procedure:"var(--accent)",lab:"var(--accent3)",symptom:"var(--danger)",vaccination:"var(--success)",lifestyle:"var(--accent)",note:"var(--dim)"};
 
   const handleVisitPdf = async (e) => {
@@ -62,9 +63,9 @@ Use today's date ${today()} if no date is found. Extract ALL distinct events (di
 
   return <div className="fade-up">
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-      <div><h2 style={S.h2}>📋 Health Timeline</h2><p style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Your complete medical history feeds the AI</p></div>
+      <div><h2 style={S.h2}><Icon name="timeline" size={18}/> Health Timeline</h2><p style={{fontSize:15,color:"var(--dim)",marginTop:2}}>Your complete medical history feeds the AI</p></div>
       <div style={{display:"flex",gap:6}}>
-        <button onClick={()=>pdfRef.current?.click()} style={{...S.smallBtn,background:"var(--accent3)",color:"#fff"}}>📎 PDF</button>
+        <button onClick={()=>pdfRef.current?.click()} style={{...S.smallBtn,background:"var(--accent3)",color:"#fff"}}><Icon name="attach" size={14}/> PDF</button>
         <button onClick={()=>setAdding(!adding)} style={S.smallBtn}>{adding?"Cancel":"+ Add"}</button>
       </div>
     </div>
@@ -80,7 +81,7 @@ Use today's date ${today()} if no date is found. Extract ALL distinct events (di
     </div>}
 
     {state.aiMemory?.length>0&&<div style={{...S.card,marginTop:14,padding:16,borderLeft:"3px solid var(--accent3)"}}>
-      <h3 style={S.h3}>🧠 AI Memory ({state.aiMemory.length} observations)</h3>
+      <h3 style={S.h3}><Icon name="memory" size={14}/> AI Memory ({state.aiMemory.length} observations)</h3>
       <p style={{fontSize:14,color:"var(--dim)",marginTop:4}}>Patterns and insights learned from your health data:</p>
       <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:4}}>
         {state.aiMemory.slice(-5).reverse().map((m,i)=><div key={i} style={{padding:"8px 10px",background:"rgba(179,148,167,0.06)",borderRadius:6,fontSize:14,color:"var(--text)",lineHeight:1.5}}><span style={{fontFamily:"var(--mono)",color:"var(--dim)",fontSize:16}}>{m.date}</span> {m.insight}</div>)}
